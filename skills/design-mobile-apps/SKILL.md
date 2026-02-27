@@ -308,13 +308,20 @@ Content-Type: application/json
 }
 ```
 
-| Field        | Default       | Notes                     |
-| ------------ | ------------- | ------------------------- |
-| `format`     | `png`         | `png` or `webp`           |
-| `scale`      | `2`           | 1–3 (device pixel ratio)  |
-| `gap`        | `40`          | Pixels between components |
-| `padding`    | `40`          | Canvas padding            |
-| `background` | `transparent` | Any CSS color             |
+| Field        | Default       | Notes                                                                 |
+| ------------ | ------------- | --------------------------------------------------------------------- |
+| `format`     | `png`         | `png` or `webp`                                                      |
+| `scale`      | `2`           | 1–3 (device pixel ratio)                                             |
+| `gap`        | `40`          | Pixels between components                                            |
+| `padding`    | `40`          | Uniform padding on all sides                                         |
+| `paddingX`   | _(optional)_  | Horizontal padding; overrides `padding` for left/right when provided |
+| `paddingY`   | _(optional)_  | Vertical padding; overrides `padding` for top/bottom when provided   |
+| `background` | `transparent` | Any CSS color (hex, named, `transparent`)                            |
+| `showDots`   | `false`       | Overlay a subtle dot grid on the background                          |
+
+`paddingX` and `paddingY` take precedence over `padding` for their axis. If neither is set, `padding` applies to all sides. For example, `{ "padding": 20, "paddingX": 10 }` gives 10px horizontal and 20px vertical padding.
+
+When `showDots` is `true`, a dot pattern is drawn over the background color. The dots automatically adapt to the background: dark backgrounds get light dots, light backgrounds get dark dots. This has no effect when `background` is `"transparent"`.
 
 Always use `"background": "transparent"` unless the user explicitly requests a specific background color.
 
