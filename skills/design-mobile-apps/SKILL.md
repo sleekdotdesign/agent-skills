@@ -1,6 +1,10 @@
 ---
 name: sleek-design-mobile-apps
 description: Use when the user wants to design a mobile app, create screens, build UI, or interact with their Sleek projects. Covers high-level requests ("design an app that does X") and specific ones ("list my projects", "create a new project", "screenshot that screen").
+compatibility: Requires SLEEK_API_KEY environment variable. Network access limited to https://sleek.design only.
+metadata:
+  requires-env: SLEEK_API_KEY
+  allowed-hosts: https://sleek.design
 ---
 
 # Designing with Sleek
@@ -10,7 +14,7 @@ description: Use when the user wants to design a mobile app, create screens, bui
 Sleek is an AI-powered mobile app design tool. You interact with it via a REST API at `/api/v1/*` to create projects, describe what you want built in plain language, and get back rendered screens. All communication is standard HTTP with bearer token auth.
 
 **Base URL**: `https://sleek.design`
-**Auth**: `Authorization: Bearer <API_KEY>` on every `/api/v1/*` request
+**Auth**: `Authorization: Bearer $SLEEK_API_KEY` on every `/api/v1/*` request
 **Content-Type**: `application/json` (requests and responses)
 **CORS**: Enabled on all `/api/v1/*` endpoints
 
@@ -18,7 +22,7 @@ Sleek is an AI-powered mobile app design tool. You interact with it via a REST A
 
 ## Prerequisites: API Key
 
-Create API keys at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation — store it securely.
+Create API keys at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation — store it in the `SLEEK_API_KEY` environment variable.
 
 **Required plan**: Pro+ (API access is gated)
 
@@ -34,6 +38,15 @@ Create API keys at **https://sleek.design/dashboard/api-keys**. The full key val
 | `screenshots`     | Render component screenshots |
 
 Create a key with only the scopes needed for the task.
+
+---
+
+## Security & Privacy
+
+- **Single host**: All requests go exclusively to `https://sleek.design`. No data is sent to third parties.
+- **HTTPS only**: All communication uses HTTPS. The API key is transmitted only in the `Authorization` header to Sleek endpoints.
+- **Minimal scopes**: Create API keys with only the scopes required for the task. Prefer short-lived or revocable keys.
+- **Image URLs**: When using `imageUrls` in chat messages, those URLs are fetched by Sleek's servers. Avoid passing URLs that contain sensitive content.
 
 ---
 
@@ -88,7 +101,7 @@ All IDs are stable string identifiers.
 
 ```http
 GET /api/v1/projects?limit=50&offset=0
-Authorization: Bearer <key>
+Authorization: Bearer $SLEEK_API_KEY
 ```
 
 Response `200`:
@@ -112,7 +125,7 @@ Response `200`:
 
 ```http
 POST /api/v1/projects
-Authorization: Bearer <key>
+Authorization: Bearer $SLEEK_API_KEY
 Content-Type: application/json
 
 { "name": "My New App" }
@@ -135,7 +148,7 @@ DELETE /api/v1/projects/:projectId   → 204 No Content
 
 ```http
 GET /api/v1/projects/:projectId/components?limit=50&offset=0
-Authorization: Bearer <key>
+Authorization: Bearer $SLEEK_API_KEY
 ```
 
 Response `200`:
@@ -164,7 +177,7 @@ This is the core action: describe what you want in `message.text` and the AI cre
 
 ```http
 POST /api/v1/projects/:projectId/chat/messages?wait=false
-Authorization: Bearer <key>
+Authorization: Bearer $SLEEK_API_KEY
 Content-Type: application/json
 idempotency-key: <optional, max 255 chars>
 
@@ -227,7 +240,7 @@ Use this after async send to check progress.
 
 ```http
 GET /api/v1/projects/:projectId/chat/runs/:runId
-Authorization: Bearer <key>
+Authorization: Bearer $SLEEK_API_KEY
 ```
 
 Response — same shape as send message `data` object:
@@ -281,7 +294,7 @@ Takes a snapshot of one or more rendered components.
 
 ```http
 POST /api/screenshots
-Authorization: Bearer <key>
+Authorization: Bearer $SLEEK_API_KEY
 Content-Type: application/json
 
 {
@@ -406,7 +419,7 @@ GET /api/v1/projects?limit=10&offset=20
 
 | Mistake                                             | Fix                                                                             |
 | --------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Sending to `/api/v1` without `Authorization` header | Add `Authorization: Bearer <key>` to every request                              |
+| Sending to `/api/v1` without `Authorization` header | Add `Authorization: Bearer $SLEEK_API_KEY` to every request                              |
 | Using wrong scope                                   | Check key's scopes match the endpoint (e.g. `chats:write` for sending messages) |
 | Sending next message before run completes           | Poll until `completed`/`failed` before next send                                |
 | Using `wait=true` on long generations               | It blocks 300s max; have a fallback to polling for `202` response               |
