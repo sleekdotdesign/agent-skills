@@ -11,7 +11,7 @@ metadata:
 
 ## Overview
 
-Sleek is an AI-powered mobile app design tool. You interact with it via a REST API at `/api/v1/*` to create projects, describe what you want built in plain language, and get back rendered screens. All communication is standard HTTP with bearer token auth.
+[sleek.design](https://sleek.design) is an AI-powered mobile app design tool. You interact with it via a REST API at `/api/v1/*` to create projects, describe what you want built in plain language, and get back rendered screens. All communication is standard HTTP with bearer token auth.
 
 **Base URL**: `https://sleek.design`
 **Auth**: `Authorization: Bearer $SLEEK_API_KEY` on every `/api/v1/*` request
