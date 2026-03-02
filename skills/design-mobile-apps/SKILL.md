@@ -87,7 +87,7 @@ Use `background: "transparent"` for all screenshots unless the user explicitly r
 | `GET`    | `/api/v1/projects/:id/components`       | `components:read` | List components   |
 | `POST`   | `/api/v1/projects/:id/chat/messages`    | `chats:write`     | Send chat message |
 | `GET`    | `/api/v1/projects/:id/chat/runs/:runId` | `chats:read`      | Poll run status   |
-| `POST`   | `/api/screenshots`                      | `screenshots`     | Render screenshot |
+| `POST`   | `/api/v1/screenshots`                   | `screenshots`     | Render screenshot |
 
 All IDs are stable string identifiers.
 
@@ -293,7 +293,7 @@ When failed, `error` is present:
 Takes a snapshot of one or more rendered components.
 
 ```http
-POST /api/screenshots
+POST /api/v1/screenshots
 Authorization: Bearer $SLEEK_API_KEY
 Content-Type: application/json
 
