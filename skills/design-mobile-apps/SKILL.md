@@ -313,13 +313,17 @@ Content-Type: application/json
 | `format`     | `png`         | `png` or `webp`                                                      |
 | `scale`      | `2`           | 1–3 (device pixel ratio)                                             |
 | `gap`        | `40`          | Pixels between components                                            |
-| `padding`    | `40`          | Uniform padding on all sides                                         |
-| `paddingX`   | _(optional)_  | Horizontal padding; overrides `padding` for left/right when provided |
-| `paddingY`   | _(optional)_  | Vertical padding; overrides `padding` for top/bottom when provided   |
-| `background` | `transparent` | Any CSS color (hex, named, `transparent`)                            |
-| `showDots`   | `false`       | Overlay a subtle dot grid on the background                          |
+| `padding`       | `40`          | Uniform padding on all sides                                         |
+| `paddingX`      | _(optional)_  | Horizontal padding; overrides `padding` for left/right when provided |
+| `paddingY`      | _(optional)_  | Vertical padding; overrides `padding` for top/bottom when provided   |
+| `paddingTop`    | _(optional)_  | Top padding; overrides `paddingY` when provided                      |
+| `paddingRight`  | _(optional)_  | Right padding; overrides `paddingX` when provided                    |
+| `paddingBottom` | _(optional)_  | Bottom padding; overrides `paddingY` when provided                   |
+| `paddingLeft`   | _(optional)_  | Left padding; overrides `paddingX` when provided                     |
+| `background`    | `transparent` | Any CSS color (hex, named, `transparent`)                            |
+| `showDots`      | `false`       | Overlay a subtle dot grid on the background                          |
 
-`paddingX` and `paddingY` take precedence over `padding` for their axis. If neither is set, `padding` applies to all sides. For example, `{ "padding": 20, "paddingX": 10 }` gives 10px horizontal and 20px vertical padding.
+Padding resolves with a cascade: per-side → axis → uniform. For example, `paddingTop` falls back to `paddingY`, which falls back to `padding`. So `{ "padding": 20, "paddingX": 10, "paddingLeft": 5 }` gives top/bottom 20px, right 10px, left 5px.
 
 When `showDots` is `true`, a dot pattern is drawn over the background color. The dots automatically adapt to the background: dark backgrounds get light dots, light backgrounds get dark dots. This has no effect when `background` is `"transparent"`.
 
