@@ -1,5 +1,7 @@
 # Sleek Agent Skills
 
+[![Design mobile apps in minutes](https://raw.githubusercontent.com/sleekdotdesign/agent-skills/main/assets/hero.png)](https://sleek.design)
+
 Agent skills for [Sleek](https://sleek.design), the AI-powered mobile app design tool.
 
 ## Skills
