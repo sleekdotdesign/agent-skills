@@ -69,8 +69,8 @@ You do not need to decompose the request into screens first. Send the full inten
 **After every chat run that produces `screen_created` or `screen_updated` operations, always take screenshots and show them to the user.** Never silently complete a chat run without delivering the visuals.
 
 **When screens are created for the first time on a project** (i.e. the run includes `screen_created` operations), deliver:
-1. One screenshot per newly created screen (individual `componentIds: [screenId]`)
-2. One combined screenshot of all screens in the project (`componentIds: [all screen ids]`)
+1. One screenshot per newly created screen (individual `componentIds: [componentId]`)
+2. One combined screenshot of all screens in the project (`componentIds: [all componentIds]`)
 
 **When only existing screens are updated**, deliver one screenshot per affected screen.
 
@@ -194,7 +194,7 @@ idempotency-key: <optional, max 255 chars>
 | ------------------------ | -------- | --------------------------------------------- |
 | `message.text`           | Yes      | 1+ chars, trimmed                             |
 | `imageUrls`              | No       | HTTPS URLs only; included as visual context   |
-| `target.screenId`        | No       | Edit a specific screen; omit to let AI decide |
+| `target.screenId`        | No       | Edit a specific screen using its `screenId` (not `componentId`); omit to let AI decide |
 | `?wait=true/false`       | No       | Sync wait mode (default: false)               |
 | `idempotency-key` header | No       | Replay-safe re-sends                          |
 
@@ -225,8 +225,8 @@ Blocks up to **300 seconds**. Returns `200` when completed, `202` if timed out.
     "result": {
       "assistantText": "I added a pricing section with...",
       "operations": [
-        { "type": "screen_created", "screenId": "scr_xyz", "screenName": "Pricing" },
-        { "type": "screen_updated", "screenId": "scr_abc" },
+        { "type": "screen_created", "screenId": "scr_xyz", "screenName": "Pricing", "componentId": "cmp_xyz" },
+        { "type": "screen_updated", "screenId": "scr_abc", "componentId": "cmp_abc" },
         { "type": "theme_updated" }
       ]
     }
@@ -368,10 +368,10 @@ Chat run-level errors (inside `data.error`):
 2. POST /api/v1/projects/:id/chat/messages            → get runId (202)
 3. Poll GET /api/v1/projects/:id/chat/runs/:runId
    until status == "completed" or "failed"
-4. Collect screenIds from result.operations
+4. Collect componentIds from result.operations
    (screen_created and screen_updated entries)
-5. Screenshot each affected screen individually
-6. If any screen_created: also screenshot all project screens combined
+5. Screenshot each affected screen individually using componentIds
+6. If any screen_created: also screenshot all project screens combined using componentIds
 7. Show all screenshots to the user
 ```
 
@@ -392,11 +392,12 @@ Best for short tasks or when latency is acceptable.
 ### Flow 3: Edit a specific screen
 
 ```
-1. GET /api/v1/projects/:id/components         → find screenId
+1. GET /api/v1/projects/:id/components         → find the component
 2. POST /api/v1/projects/:id/chat/messages
    body: { message: { text: "..." }, target: { screenId: "scr_xyz" } }
+   Note: target.screenId uses the screen ID (from operations), not the component ID
 3. Poll or wait as above
-4. Screenshot the updated screen and show it to the user
+4. Screenshot the updated screen using its componentId (from the operation result)
 ```
 
 ### Flow 4: Idempotent message (safe retries)
@@ -438,3 +439,4 @@ GET /api/v1/projects?limit=10&offset=20
 | Using `wait=true` on long generations               | It blocks 300s max; have a fallback to polling for `202` response               |
 | HTTP URLs in `imageUrls`                            | Only HTTPS URLs are accepted                                                    |
 | Assuming `result` is present on `202`               | `result` is absent until status is `completed`                                  |
+| Using `screenId` as `componentIds` in screenshots   | `screenId` and `componentId` are different; always use `componentId` from operations for screenshots |
