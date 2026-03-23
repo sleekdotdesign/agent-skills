@@ -26,7 +26,7 @@ metadata:
 
 Create API keys at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation — store it in the `SLEEK_API_KEY` environment variable.
 
-**Required plan**: Pro+ (API access is gated)
+**Required plan**: Pro or higher (API access is gated)
 
 ### Key scopes
 
