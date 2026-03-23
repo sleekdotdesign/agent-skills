@@ -429,6 +429,14 @@ GET /api/v1/projects?limit=10&offset=20
 
 ---
 
+## Tips
+
+### Saving component HTML to files
+
+Component code can be large. When saving it to `.html` files, avoid writing the content through your text output — this is slow and wastes tokens. Instead, use shell commands to fetch the API response and write it directly to disk (e.g., pipe the response body into a file). This applies to both single and multiple components.
+
+---
+
 ## Common Mistakes
 
 | Mistake                                             | Fix                                                                             |
