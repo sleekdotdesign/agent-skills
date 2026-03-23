@@ -162,7 +162,7 @@ Response `200`:
       "id": "cmp_xyz",
       "name": "Hero Section",
       "activeVersion": 3,
-      "versions": [{ "id": "ver_001", "version": 1, "code": "<div>...</div>", "createdAt": "..." }],
+      "versions": [{ "id": "ver_001", "version": 1, "code": "<!DOCTYPE html>...</html>", "createdAt": "..." }],
       "createdAt": "...",
       "updatedAt": "..."
     }
