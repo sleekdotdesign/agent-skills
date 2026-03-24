@@ -87,6 +87,7 @@ Use `background: "transparent"` for all screenshots unless the user explicitly r
 | `GET`    | `/api/v1/projects/:id`                  | `projects:read`   | Get project       |
 | `DELETE` | `/api/v1/projects/:id`                  | `projects:write`  | Delete project    |
 | `GET`    | `/api/v1/projects/:id/components`       | `components:read` | List components   |
+| `GET`    | `/api/v1/projects/:id/components/:componentId` | `components:read` | Get component |
 | `POST`   | `/api/v1/projects/:id/chat/messages`    | `chats:write`     | Send chat message |
 | `GET`    | `/api/v1/projects/:id/chat/runs/:runId` | `chats:read`      | Poll run status   |
 | `POST`   | `/api/v1/screenshots`                   | `screenshots`     | Render screenshot |
@@ -168,6 +169,30 @@ Response `200`:
     }
   ],
   "pagination": { "total": 5, "limit": 50, "offset": 0 }
+}
+```
+
+#### Get component
+
+Fetches a single component by ID. Use this when you need the code for a specific screen (e.g., after a chat run returns a `componentId` in its operations).
+
+```http
+GET /api/v1/projects/:projectId/components/:componentId
+Authorization: Bearer $SLEEK_API_KEY
+```
+
+Response `200` — same shape as a single item from the list endpoint:
+
+```json
+{
+  "data": {
+    "id": "cmp_xyz",
+    "name": "Hero Section",
+    "activeVersion": 3,
+    "versions": [{ "id": "ver_001", "version": 1, "code": "<!DOCTYPE html>...</html>", "createdAt": "..." }],
+    "createdAt": "...",
+    "updatedAt": "..."
+  }
 }
 ```
 
