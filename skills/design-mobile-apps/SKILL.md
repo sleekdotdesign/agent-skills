@@ -393,6 +393,8 @@ After every chat run that produces `screen_created` or `screen_updated` operatio
 
 Use `background: "transparent"` for all screenshots unless the user explicitly requests otherwise.
 
+Save screenshots in the project directory (not a temporary folder) so the user can easily view them.
+
 ---
 
 ## Implementing Designs
