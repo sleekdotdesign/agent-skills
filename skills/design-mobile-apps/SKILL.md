@@ -454,6 +454,39 @@ GET /api/v1/projects?limit=10&offset=20
 
 ---
 
+## Implementing Designs
+
+### HTML prototypes
+
+The component `code` field is a complete HTML document that works out of the box — save it to a `.html` file and open it in a browser. No build step or extra setup needed. This is the fastest path for prototyping.
+
+### Native implementations (React Native, SwiftUI, etc.)
+
+When implementing designs in a native framework, use both the **screenshots** and the **HTML code** together:
+
+- **Screenshots** are the visual target — the design should look like the screenshot.
+- **HTML code** is the implementation reference — it shows the structure, layout, styling, colors, spacing, and content that make up the design.
+
+Screenshots tell you *what* it should look like. HTML tells you *how* to get there. Some CSS patterns won't map 1:1 to native frameworks, so use the screenshot to verify you're matching the intended result rather than blindly converting every HTML detail.
+
+### Icons
+
+Sleek uses [Iconify](https://iconify.design) icons in the format `prefix:name` (e.g., `solar:heart-bold`, `material-symbols:search-rounded`, `lucide:settings`). The most common sets are **Solar**, **Hugeicons**, **Material Symbols** and **MDI**.
+
+When implementing icons in your project:
+
+1. **Check if the project already has an icon system** — if it supports the same icon sets Sleek uses (Solar, Material Symbols, etc.), use that directly.
+2. **Otherwise, use an Iconify library** for your platform:
+   - **React Native**: [`react-native-iconify`](https://www.npmjs.com/package/react-native-iconify) (requires `react-native-svg`; not compatible with Expo Go — use a development build)
+   - **Other platforms**: See [Iconify implementations](https://iconify.design/docs/)
+3. **If you need raw SVGs** (e.g., for custom rendering), fetch them from the Iconify API:
+   ```
+   GET https://api.iconify.design/{prefix}/{name}.svg
+   ```
+   Example: `https://api.iconify.design/solar/heart-bold.svg`
+
+---
+
 ## Tips
 
 ### Saving component HTML to files
