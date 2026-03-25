@@ -52,8 +52,6 @@ Create a key with only the scopes needed for the task.
 
 ---
 
----
-
 ## Quick Reference — All Endpoints
 
 | Method   | Path                                    | Scope             | Description       |
@@ -357,6 +355,12 @@ Chat run-level errors (inside `data.error`):
 | ------------------ | -------------------------------- |
 | `out_of_credits`   | Organization has no credits left |
 | `execution_failed` | AI execution error               |
+
+---
+
+## Prompting Sleek
+
+Sleek has its own AI that plans screen content, visual style, and layout. Pass the user's request to Sleek as-is — don't add details the user didn't ask for. If the user described specific screens and styling, include those. If they just said "build me a running app," send that and let Sleek decide the rest. Sleek produces richer designs when given room to plan, so avoid inventing screen content or layout details that the user didn't specify.
 
 ---
 
