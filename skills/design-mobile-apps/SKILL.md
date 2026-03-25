@@ -52,30 +52,6 @@ Create a key with only the scopes needed for the task.
 
 ---
 
-## Handling high-level requests
-
-When the user says something like "design a fitness tracking app" or "build me a settings screen":
-
-1. **Create a project** if one doesn't exist yet (ask the user for a name, or derive one from the request)
-2. **Send a chat message** describing what to build — you can use the user's words directly as `message.text`; Sleek's AI interprets natural language
-3. **Follow the screenshot delivery rule** below to show the result
-
-You do not need to decompose the request into screens first. Send the full intent as a single message and let Sleek decide what screens to create.
-
----
-
-## Screenshot delivery rule
-
-**After every chat run that produces `screen_created` or `screen_updated` operations, always take screenshots and show them to the user.** Never silently complete a chat run without delivering the visuals.
-
-**When screens are created for the first time on a project** (i.e. the run includes `screen_created` operations), deliver:
-1. One screenshot per newly created screen (individual `componentIds: [componentId]`)
-2. One combined screenshot of all screens in the project (`componentIds: [all componentIds]`)
-
-**When only existing screens are updated**, deliver one screenshot per affected screen.
-
-Use `background: "transparent"` for all screenshots unless the user explicitly requests otherwise.
-
 ---
 
 ## Quick Reference — All Endpoints
@@ -384,90 +360,55 @@ Chat run-level errors (inside `data.error`):
 
 ---
 
-## Flows
+## Designing
 
-### Flow 1: Create project and generate a UI (async + polling)
+### 1. Create a project
 
-```
-1. POST /api/v1/projects                              → get projectId
-2. POST /api/v1/projects/:id/chat/messages            → get runId (202)
-3. Poll GET /api/v1/projects/:id/chat/runs/:runId
-   until status == "completed" or "failed"
-4. Collect componentIds from result.operations
-   (screen_created and screen_updated entries)
-5. Screenshot each affected screen individually using componentIds
-6. If any screen_created: also screenshot all project screens combined using componentIds
-7. Show all screenshots to the user
-```
+Create a project with `POST /api/v1/projects` if one doesn't exist yet. Ask the user for a name, or derive one from the request.
 
-**Polling recommendation**: start at 2s interval, back off to 5s after 10s, give up after 5 minutes.
+### 2. Send a chat message
 
-### Flow 2: Sync mode (simple, blocking)
+Describe what to build using `POST /api/v1/projects/:id/chat/messages`. You can use the user's words directly — Sleek's AI interprets natural language. You do not need to decompose the request into screens; send the full intent as a single message and let Sleek decide what screens to create.
 
-Best for short tasks or when latency is acceptable.
+Chat messages are async by default — you get a `runId` and poll for completion with `GET /api/v1/projects/:id/chat/runs/:runId`. You can also use `?wait=true` for a blocking call (up to 300s; falls back to polling if it times out with `202`).
 
-```
-1. POST /api/v1/projects/:id/chat/messages?wait=true
-   → blocks up to 300s
-   → 200 if completed, 202 if timed out
-2. If 202, fall back to Flow 1 polling with the returned runId
-3. On completion, screenshot and show affected screens (see screenshot delivery rule)
-```
+**Polling**: start at 2s interval, back off to 5s after 10s, give up after 5 minutes.
 
-### Flow 3: Edit a specific screen
+**Editing a specific screen**: use `target.screenId` to direct changes to the right screen (uses the screen ID from operations, not the component ID).
 
-```
-1. GET /api/v1/projects/:id/components         → find the component
-2. POST /api/v1/projects/:id/chat/messages
-   body: { message: { text: "..." }, target: { screenId: "scr_xyz" } }
-   Note: target.screenId uses the screen ID (from operations), not the component ID
-3. Poll or wait as above
-4. Screenshot the updated screen using its componentId (from the operation result)
-```
+**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message.
 
-### Flow 4: Idempotent message (safe retries)
+**Safe retries**: add an `idempotency-key` header (≤255 chars) to replay-safe re-sends. The server returns the existing run rather than creating a duplicate.
 
-Add `idempotency-key` header on the send request. If the network drops and you retry with the same key, the server returns the existing run rather than creating a duplicate. The key must be ≤255 chars.
+### 3. Show the results
 
-```
-POST /api/v1/projects/:id/chat/messages
-idempotency-key: my-unique-request-id-abc123
-```
+After every chat run that produces `screen_created` or `screen_updated` operations, **always take screenshots and show them to the user** using `POST /api/v1/screenshots`. Never silently complete a chat run without delivering the visuals.
 
-### Flow 5: One run at a time (conflict handling)
+- **New screens**: one screenshot per screen + one combined screenshot of all screens in the project.
+- **Updated screens**: one screenshot per affected screen.
 
-Only one active run is allowed per project. If you send a message while one is running, you get `409 CONFLICT`. Wait for the active run to complete before sending the next message.
-
-```
-409 response → poll existing run → completed → send next message
-```
-
----
-
-## Pagination
-
-All list endpoints accept `limit` (1–100, default 50) and `offset` (≥0). The response always includes `pagination.total` so you can page through all results.
-
-```http
-GET /api/v1/projects?limit=10&offset=20
-```
+Use `background: "transparent"` for all screenshots unless the user explicitly requests otherwise.
 
 ---
 
 ## Implementing Designs
 
+When the user wants to implement the designs in code (not just preview them), **always fetch the component HTML code** — do not rely on screenshots alone.
+
+Use `GET /api/v1/projects/:id/components/:componentId` to fetch each screen's code. The `componentId` comes from the chat run's `result.operations`.
+
 ### HTML prototypes
 
-The component `code` field is a complete HTML document that works out of the box — save it to a `.html` file and open it in a browser. No build step or extra setup needed. This is the fastest path for prototyping.
+The component `code` is a complete HTML document — save it directly to a `.html` file. No build step needed.
 
-### Native implementations (React Native, SwiftUI, etc.)
+### Native frameworks (React Native, SwiftUI, etc.)
 
-When implementing designs in a native framework, use both the **screenshots** and the **HTML code** together:
+Use both the HTML code and the screenshots together:
 
-- **Screenshots** are the visual target — the design should look like the screenshot.
-- **HTML code** is the implementation reference — it shows the structure, layout, styling, colors, spacing, and content that make up the design.
+- **HTML code** is the implementation reference — it contains the exact structure, layout, styling, colors, spacing, content, image URLs, and icon names.
+- **Screenshots** are the visual target — use them to verify your implementation matches the intended look.
 
-Screenshots tell you *what* it should look like. HTML tells you *how* to get there. Some CSS patterns won't map 1:1 to native frameworks, so use the screenshot to verify you're matching the intended result rather than blindly converting every HTML detail.
+The HTML tells you *how* to build it; the screenshot tells you *what* it should look like.
 
 ### Icons
 
@@ -484,6 +425,16 @@ When implementing icons in your project:
    GET https://api.iconify.design/{prefix}/{name}.svg
    ```
    Example: `https://api.iconify.design/solar/heart-bold.svg`
+
+---
+
+## Pagination
+
+All list endpoints accept `limit` (1–100, default 50) and `offset` (≥0). The response always includes `pagination.total` so you can page through all results.
+
+```http
+GET /api/v1/projects?limit=10&offset=20
+```
 
 ---
 
