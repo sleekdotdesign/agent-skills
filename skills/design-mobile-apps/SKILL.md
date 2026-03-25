@@ -427,6 +427,10 @@ When implementing icons:
 
    Collect all icon names from the HTML, fetch their SVGs, and save them as static assets or string constants in the codebase. For **React Native / Expo**, render them with `react-native-svg`'s `SvgXml` component — this works in Expo Go with no additional native dependencies.
 
+#### Fonts
+
+The HTML includes Google Fonts via `<link>` tags in the `<head>`. Use the same fonts and weights when implementing in a native framework — extract the font family names and weights from the `<link>` tags.
+
 ---
 
 ## Pagination
