@@ -431,6 +431,10 @@ When implementing icons:
 
 The HTML includes Google Fonts via `<link>` tags in the `<head>`. Use the same fonts and weights when implementing in a native framework — extract the font family names and weights from the `<link>` tags.
 
+#### Navigation
+
+The designs may include navigation elements like tab bars and headers. Update the project's navigation styling and structure to match the designs — don't just implement the screen content while leaving the default navigation untouched.
+
 ---
 
 ## Pagination
