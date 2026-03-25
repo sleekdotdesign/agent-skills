@@ -410,21 +410,22 @@ Use both the HTML code and the screenshots together:
 
 The HTML tells you *how* to build it; the screenshot tells you *what* it should look like.
 
-### Icons
+#### Icons
 
 Sleek uses [Iconify](https://iconify.design) icons in the format `prefix:name` (e.g., `solar:heart-bold`, `material-symbols:search-rounded`, `lucide:settings`). The most common sets are **Solar**, **Hugeicons**, **Material Symbols** and **MDI**.
 
-When implementing icons in your project:
+**Use the exact icons from the HTML code** — do not substitute with a different icon set. Matching icons is important for design fidelity.
 
-1. **Check if the project already has an icon system** — if it supports the same icon sets Sleek uses (Solar, Material Symbols, etc.), use that directly.
-2. **Otherwise, use an Iconify library** for your platform:
-   - **React Native**: [`react-native-iconify`](https://www.npmjs.com/package/react-native-iconify) (requires `react-native-svg`; not compatible with Expo Go — use a development build)
-   - **Other platforms**: See [Iconify implementations](https://iconify.design/docs/)
-3. **If you need raw SVGs** (e.g., for custom rendering), fetch them from the Iconify API:
+When implementing icons:
+
+1. **Check if the project already has an icon system** that supports the same sets Sleek uses (Solar, Hugeicons, Material Symbols, MDI). If so, use it. Note: `@expo/vector-icons` does **not** support these sets — do not use it as a substitute.
+2. **Otherwise, fetch the SVGs from the Iconify API and embed them in the code:**
    ```
    GET https://api.iconify.design/{prefix}/{name}.svg
    ```
    Example: `https://api.iconify.design/solar/heart-bold.svg`
+
+   Collect all icon names from the HTML, fetch their SVGs, and save them as static assets or string constants in the codebase. For **React Native / Expo**, render them with `react-native-svg`'s `SvgXml` component — this works in Expo Go with no additional native dependencies.
 
 ---
 
