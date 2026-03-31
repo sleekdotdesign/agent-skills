@@ -382,7 +382,7 @@ Chat messages are async by default — you get a `runId` and poll for completion
 
 **Editing a specific screen**: use `target.screenId` to direct changes to the right screen (uses the screen ID from operations, not the component ID).
 
-**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message.
+**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. Messages to different projects can run in parallel — use async polling (not `?wait=true`) when running multiple projects concurrently.
 
 **Safe retries**: add an `idempotency-key` header (≤255 chars) to replay-safe re-sends. The server returns the existing run rather than creating a duplicate.
 
