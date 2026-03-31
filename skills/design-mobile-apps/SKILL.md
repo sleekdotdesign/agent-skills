@@ -370,6 +370,8 @@ Sleek has its own AI that plans screen content, visual style, and layout. Pass t
 
 Create a project with `POST /api/v1/projects` if one doesn't exist yet. Ask the user for a name, or derive one from the request.
 
+Each project has its own theme, style, and design system. If the user wants multiple design variations, create a separate project for each variation.
+
 ### 2. Send a chat message
 
 Describe what to build using `POST /api/v1/projects/:id/chat/messages`. You can use the user's words directly — Sleek's AI interprets natural language. You do not need to decompose the request into screens; send the full intent as a single message and let Sleek decide what screens to create.
