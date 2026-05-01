@@ -323,7 +323,7 @@ Content-Type: application/json
 | `paddingLeft`   | _(optional)_  | Left padding; overrides `paddingX` when provided                     |
 | `background`    | `transparent` | Any CSS color (hex, named, `transparent`)                            |
 | `showDots`      | `false`       | Overlay a subtle dot grid on the background                          |
-| `radius`        | `48`          | Squircle corner radius per frame (integer ≥ 0); pass `0` for sharp corners |
+| `radius`        | `48`          | Squircle corner radius per component in pixels (integer ≥ 0); pass `0` for sharp corners |
 
 Padding resolves with a cascade: per-side → axis → uniform. For example, `paddingTop` falls back to `paddingY`, which falls back to `padding`. So `{ "padding": 20, "paddingX": 10, "paddingLeft": 5 }` gives top/bottom 20px, right 10px, left 5px.
 
