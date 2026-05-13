@@ -128,6 +128,8 @@ GET /api/v1/projects/:projectId/components?limit=50&offset=0
 Authorization: Bearer $SLEEK_API_KEY
 ```
 
+Both list and get accept an optional `inlineIcons` query param (default `false`). When omitted, icons render as `<iconify-icon>` web components and the HTML pulls in the Iconify script — leave it off by default. Pass `?inlineIcons=true` only when the consumer needs self-contained SVGs in the HTML (for example, importing into tools that don't run scripts).
+
 Response `200`:
 
 ```json
