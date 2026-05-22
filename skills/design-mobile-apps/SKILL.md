@@ -326,6 +326,8 @@ Content-Type: application/json
 | `background`    | `transparent` | Any CSS color (hex, named, `transparent`)                            |
 | `showDots`      | `false`       | Overlay a subtle dot grid on the background                          |
 | `radius`        | `48`          | Squircle corner radius per component in pixels (integer ≥ 0); pass `0` for sharp corners |
+| `componentVersionOverrides` | _(optional)_  | Map of `componentId` → `versions[i].id` to render at a pinned version instead of `activeVersion` (see [Pinned versions](#pinned-versions)) |
+| `themeVersionOverrides`     | _(optional)_  | Map of `themeId` → `versions[i].id` to render with a pinned theme version (see [Pinned versions](#pinned-versions))                       |
 
 Padding resolves with a cascade: per-side → axis → uniform. For example, `paddingTop` falls back to `paddingY`, which falls back to `padding`. So `{ "padding": 20, "paddingX": 10, "paddingLeft": 5 }` gives top/bottom 20px, right 10px, left 5px.
 
@@ -408,6 +410,44 @@ When the user wants to implement the designs in code (not just preview them), **
 
 Use `GET /api/v1/projects/:id/components/:componentId` to fetch each screen's code. The `componentId` comes from the chat run's `result.operations`.
 
+### Which version to use
+
+Each component carries a `versions[]` array and an `activeVersion: number`. **By default, use the entry where `versions[i].version === activeVersion`** — that's the code currently shown in Sleek.
+
+If the user's prompt pins specific versions, follow those instead (see [Pinned versions](#pinned-versions) below).
+
+### Pinned versions
+
+The user's prompt may include a pin block telling you to implement specific historical versions instead of the current ones, like this:
+
+```
+... at this exact state instead of the project's current version:
+- component cmp_abc: version ver_001
+- component cmp_def: version ver_002
+- theme thm_ghi: version ver_003
+```
+
+When you see a pin block, implement those exact versions instead of `activeVersion`. Components not named in the pin block continue to use their active version. Theme IDs surface only inside pin blocks — this skill exposes no separate endpoint to enumerate them.
+
+#### Fetching the right code
+
+For each pinned component, find the entry in `versions[]` where `versions[i].id` matches the given version id (e.g. `ver_001`) and use its `code`. Do **not** fall back to `activeVersion` for pinned components.
+
+#### Screenshots of pinned versions
+
+Pass `componentVersionOverrides` and `themeVersionOverrides` to `POST /api/v1/screenshots`:
+
+```json
+{
+  "componentIds": ["cmp_abc"],
+  "projectId": "proj_xyz",
+  "componentVersionOverrides": { "cmp_abc": "ver_001" },
+  "themeVersionOverrides":     { "thm_ghi": "ver_003" }
+}
+```
+
+Keys are component / theme public ids; values are the corresponding `versions[i].id`. Entities missing from a map fall back to their active version. Include the override maps whenever the prompt specified pinned versions.
+
 ### HTML prototypes
 
 The component `code` is a complete HTML document — save it directly to a `.html` file. No build step needed.
@@ -477,3 +517,4 @@ Component code can be large. When saving it to `.html` files, avoid writing the 
 | HTTP URLs in `imageUrls`                            | Only HTTPS URLs are accepted                                                    |
 | Assuming `result` is present on `202`               | `result` is absent until status is `completed`                                  |
 | Using `screenId` as `componentIds` in screenshots   | `screenId` and `componentId` are different; always use `componentId` from operations for screenshots |
+| Confusing `versions[i].version` (number) with `versions[i].id` (string) | When resolving pinned versions, match by `id` (e.g. `ver_001`); `version` is the numeric index |
