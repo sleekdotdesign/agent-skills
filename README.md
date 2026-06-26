@@ -9,7 +9,6 @@ Agent skills for [Sleek](https://sleek.design), the AI-powered mobile app design
 | Skill | Description |
 | ----- | ----------- |
 | [design-mobile-apps](./skills/design-mobile-apps/) | Design mobile apps, create screens, and manage Sleek projects with AI |
-| [mobile-app-onboarding](./skills/mobile-app-onboarding/) | Design mobile app onboarding flows and write the copy, from welcome screen to activation |
 
 ## Installation
 
