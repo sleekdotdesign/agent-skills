@@ -1,6 +1,6 @@
 ---
 name: sleek-apple-store-metadata-aso
-description: Use when the user wants to improve an Apple app's App Store Optimization (ASO) by writing, optimizing, auditing, or localizing the store listing metadata and copy — app name, subtitle, keyword field, description, promotional text, what's new, and screenshot/app-preview captions. Covers high-level requests ("optimize my App Store listing", "help me rank for X") and specific ones ("write a 30-char subtitle", "pick keywords under 100 chars", "review my description for keyword stuffing"). Not for translating in-app UI strings or general code localization.
+description: Use when the user wants to improve an Apple app's App Store Optimization (ASO) by writing, optimizing, auditing, or localizing the store listing metadata and copy: app name, subtitle, keyword field, description, promotional text, what's new, and screenshot/app-preview captions. Covers high-level requests ("optimize my App Store listing", "help me rank for X") and specific ones ("write a 30-char subtitle", "pick keywords under 100 chars", "review my description for keyword stuffing"). Not for translating in-app UI strings or general code localization.
 ---
 
 # Apple App Store Metadata & ASO
@@ -42,7 +42,7 @@ When you're asked to write a listing from scratch or improve an existing one, wo
 
 1. **Gather the inputs.** What the app does, its single core value, the target storefront and market, the main competitors, and whether it's new or established. A new app leans long-tail; an established one can fight for head terms.
 2. **Research and validate keywords.** Brainstorm the landscape, score candidates with an ASO tool, and, if an Apple Search Ads account is available, validate the best ones with an exact-match campaign (otherwise flag them as unvalidated). End with a ranked list split into primary (one or two), secondary (a handful), and long-tail.
-3. **Place keywords by field weight, highest first.** Title takes the brand plus the leading primary keyword. Subtitle takes the strongest secondary keywords and a value proposition, reusing no words from the title. The keyword field takes everything else as single words. Optionally use the Spanish (Mexico) name and subtitle for extra US keywords.
+3. **Place keywords by field weight, highest first.** Title takes the brand plus the leading primary keyword. Subtitle takes the strongest secondary keywords and a value proposition, reusing no words from the title. The keyword field takes everything else as single words. If the storefront indexes more than one localization, use the extra slots for more keywords (see Localization).
 4. **Write the conversion copy.** Description opens with the core benefit. Promotional text carries the current hook. The first two screenshots carry the value props.
 5. **Run the self-check** below against every field.
 6. **Output the listing** with a character count next to each field, and flag anything that still needs Apple Search Ads validation or a check against current Apple docs.
@@ -56,57 +56,55 @@ Every field a listing can have, with its limits and how it behaves. These number
 
 | Field | Limit | Visible to users? | Indexed for search? | Editable without a new app version? |
 | ----- | ----- | ----------------- | ------------------- | ----------------------------------- |
-| **App Name** | 30 chars | Yes — everywhere | **Yes (highest weight)** | No (review required) |
-| **Subtitle** | 30 chars | Yes — under the name | **Yes (high weight)** | No (review required) |
+| **App Name** | 30 chars | Yes (everywhere) | **Yes (highest weight)** | No (review required) |
+| **Subtitle** | 30 chars | Yes (under the name) | **Yes (high weight)** | No (review required) |
 | **Keyword field** | 100 chars | **No (hidden)** | **Yes** | No (review required) |
-| **Promotional Text** | 170 chars | Yes — top of description | No | **Yes (anytime, no review)** |
-| **Description** | 4,000 chars | Yes — product page (truncated) | **No** | No (review required) |
-| **What's New** (release notes) | 4,000 chars | Yes — product page | No | No (tied to a version) |
-| **App Icon** | 1024×1024 px PNG, no alpha | Yes — everywhere | No | No (review required) |
-| **Screenshots** | Up to 10 per device size | Yes — results + product page | Debated (caption text) | No (review required) |
-| **App Previews** (video) | Up to 3 per device, 15–30s | Yes — results + product page | No | No (review required) |
+| **Promotional Text** | 170 chars | Yes (top of description) | No | **Yes (anytime, no review)** |
+| **Description** | 4,000 chars | Yes (product page, truncated) | **No** | No (review required) |
+| **What's New** (release notes) | 4,000 chars | Yes (product page) | No | No (tied to a version) |
+| **App Icon** | 1024×1024 px PNG, no alpha | Yes (everywhere) | No | No (review required) |
+| **Screenshots** | Up to 10 per device size | Yes (results + product page) | Debated (caption text) | No (review required) |
+| **App Previews** (video) | Up to 3 per device, 15-30s | Yes (results + product page) | No | No (review required) |
 | **Primary / Secondary Category** | 1 each | Yes | Influences browse ranking | No (review required) |
-| **Support URL** | — | Yes | No | Yes |
-| **Marketing URL** | — | Yes | No | Yes |
-| **Privacy Policy URL** | — | Yes | No | Yes |
+| **Support URL** | n/a | Yes | No | Yes |
+| **Marketing URL** | n/a | Yes | No | Yes |
+| **Privacy Policy URL** | n/a | Yes | No | Yes |
 | **In-App Purchase / Event names** | per Apple limits | Yes | **Yes (lower weight)** | Reviewed separately |
 
 ### Text metadata
 
-- **App Name** — Your most valuable field for ranking, and the name people remember you by. Usually `Brand` or `Brand: primary value/keyword`. 30 characters.
-- **Subtitle** — A short value proposition under the name, and the second-strongest keyword field. It should complement the name and not reuse its words. 30 characters.
-- **Keyword field** — Hidden, comma-separated, 100 characters total. Pure ranking input. Apple recombines the words into phrases, so list single terms and use the whole budget.
-- **Promotional Text** — 170 characters above the description, editable any time without review. Good for launches, sales, seasonal messaging, or a fresh hook between version updates. Not indexed.
-- **Description** — Up to 4,000 characters, written to convert. The first few lines show before the **more** cutoff and matter most. Not indexed for search on iOS. On Google Play the description is a primary ranking factor, which is why cross-platform advice gets this wrong.
-- **What's New** — Up to 4,000 characters of release notes per version. It signals an app that's actively maintained. Not indexed.
+- **App Name**. Your most valuable field for ranking, and the name people remember you by. Usually `Brand` or `Brand: primary value/keyword`. 30 characters.
+- **Subtitle**. A short value proposition under the name, and the second-strongest keyword field. It should complement the name and not reuse its words. 30 characters.
+- **Keyword field**. Hidden, comma-separated, 100 characters total. Pure ranking input. Apple recombines the words into phrases, so list single terms and use the whole budget.
+- **Promotional Text**. 170 characters above the description, editable any time without review. Good for launches, sales, seasonal messaging, or a fresh hook between version updates. Not indexed.
+- **Description**. Up to 4,000 characters, written to convert. The first few lines show before the **more** cutoff and matter most. Not indexed for search on iOS. On Google Play the description is a primary ranking factor, which is why cross-platform advice gets this wrong.
+- **What's New**. Up to 4,000 characters of release notes per version. It signals an app that's actively maintained. Not indexed.
 
 ### Visual assets
 
-- **App Icon** — 1024×1024 PNG, no transparency. It appears on every surface, so it does a lot of the conversion work.
-- **Screenshots** — Up to 10 per device size. The first one to three show in search results and carry most of the conversion weight. Supply assets for the current required device sizes, such as the largest iPhone display and iPad. Apple can scale down from the largest sizes for some older devices, but confirm the current requirements.
-- **App Previews** — Up to 3 autoplaying videos per device size, 15 to 30 seconds each. Previews can start muted, so the poster frame has to stand on its own.
+- **App Icon**. 1024×1024 PNG, no transparency. It appears on every surface, so it does a lot of the conversion work.
+- **Screenshots**. Up to 10 per device size. The first one to three show in search results and carry most of the conversion weight. Supply assets for the current required device sizes, such as the largest iPhone display and iPad. Apple can scale down from the largest sizes for some older devices, but confirm the current requirements.
+- **App Previews**. Up to 3 autoplaying videos per device size, 15 to 30 seconds each. Previews can start muted, so the poster frame has to stand on its own.
 
 ### Identity & classification
 
-- **Categories** — One primary, which feeds category browse and charts, plus one optional secondary.
-- **Age Rating** — Set through the content questionnaire. It affects eligibility and who sees the app.
-- **URLs** — Support and Privacy Policy URLs are required; the Marketing URL is optional. All three can change without a new version.
-- **Developer Name** — Carries some search weight, and consistent branding helps.
+- **Categories**. One primary, which feeds category browse and charts, plus one optional secondary.
+- **Age Rating**. Set through the content questionnaire. It affects eligibility and who sees the app.
+- **URLs**. Support and Privacy Policy URLs are required; the Marketing URL is optional. All three can change without a new version.
+- **Developer Name**. Carries some search weight, and consistent branding helps.
 
 ### Localization
 
-Don't think of localizations as "the translations of my listing." Each **localization** is its own full set of metadata — name (30), subtitle (30), keyword field (100), description, screenshots — and for ranking they behave like extra keyword slots.
+Don't think of localizations as "the translations of my listing." Each **localization** is its own full set of metadata, with its own name (30), subtitle (30), keyword field (100), description, and screenshots. For ranking they behave like extra keyword slots.
 
-The mechanism is cross-indexing: **a storefront indexes keywords from a defined set of localizations, not only the one that matches the country's main language.** So the general play is to pick a target market, find which localizations its storefront indexes, and fill all of them, starting with the hidden keyword field.
+The mechanism is cross-indexing: **a storefront indexes keywords from a defined set of localizations, not only the one that matches the country's main language.** Every localization in that set adds another indexed name, subtitle, and 100-character keyword field for the same storefront, and most apps leave those extra slots empty. So the play for a target market is:
 
-The well-known instance is the **US storefront, which indexes English (U.S.) and Spanish (Mexico).** Most developers fill only English (U.S.) and leave Spanish (Mexico) empty, so a second name, subtitle, and 100-character keyword field sit unused while still ranking in the US. To use them:
+- Find which localizations the storefront indexes. This is Apple's mapping and it changes over time, so confirm the current set before you rely on it.
+- Fill each extra localization's keyword field first, because it's hidden. Use the keywords that didn't fit your primary fields, written in the language people actually search in for that storefront. Overflow there has no downside.
+- Be careful with the extra localizations' name and subtitle, because those are visible. They show to anyone browsing in that localization, including in its own home storefront, so don't stuff them with off-language keywords if you also serve that market.
+- Repeating a keyword across two indexed localizations may lift its ranking for that storefront, since it then appears in more than one indexed source. Repeating a word within a single localization does nothing, so treat this as a quirk worth testing, not a guarantee.
 
-- Put your **English overflow keywords**, the strong terms that didn't fit your primary fields, into the Spanish (Mexico) fields rather than a Spanish translation. US users search in English, and those fields are indexed for the US, so English terms there rank you for US searches. That's roughly another 160 characters aimed at the same audience.
-- **Start with the keyword field, because it's hidden.** English overflow there has no downside.
-- **Be careful with the Spanish (Mexico) name and subtitle, because they're visible** — both to US users whose device language is Spanish and to everyone browsing the real Mexico storefront. English stuffed there reads as a broken listing for Spanish speakers, so only repurpose those two fields if you don't serve the Mexico market or Spanish-preference US users.
-- Some practitioners report that repeating a stubborn keyword in the Spanish (Mexico) fields lifts its US ranking, since it then appears in two indexed sources. Repeating a word within a single localization does nothing, so this is a cross-localization quirk worth testing, not a guarantee.
-
-Apple changes which localizations a storefront indexes, so confirm the current set for your target market before you commit to a pairing. And beyond the keyword hack, genuinely localizing for a market you operate in — local search terms, idioms, screenshots that fit — lifts both ranking and conversion there.
+Beyond the keyword angle, genuinely localizing for a market you operate in lifts both ranking and conversion there: local search terms, idioms, and screenshots that fit the place.
 
 ### Custom Product Pages & A/B testing (a plus, not the foundation)
 
@@ -122,7 +120,7 @@ These sit on top of the core listing, so reach for them once the fundamentals ar
 The fields above are only as good as the words you put in them. This is how to choose those words.
 
 - **Go long-tail when the app is new.** A new app won't outrank established ones on a broad head term like "vegan". Target specific phrases like "raw vegan recipes" to win a smaller race first, then climb toward broader terms as the app gains weight.
-- **Read tool scores as heuristics, not truth.** ASO tools (AppTweak, Astro, AppSprint, Sensor Tower) rate keywords on popularity and difficulty, usually on a 0–100 scale. A common rule of thumb is to aim for popularity around 30 or higher with difficulty under 50. Those scores come from the tools' own models, often inferred from ad-bidding patterns rather than real search counts, so they point you in a direction rather than settle anything.
+- **Read tool scores as heuristics, not truth.** ASO tools (AppTweak, Astro, AppSprint, Sensor Tower) rate keywords on popularity and difficulty, usually on a 0-100 scale. A common rule of thumb is to aim for popularity around 30 or higher with difficulty under 50. Those scores come from the tools' own models, often inferred from ad-bidding patterns rather than real search counts, so they point you in a direction rather than settle anything.
 - **Validate with Apple Search Ads when you can.** With an ASA account and a little budget, the strongest check is an exact-match campaign on a candidate keyword: real impressions and a healthy tap-through rate mean genuine demand worth putting in your metadata, and weak numbers mean the tool oversold it. Without ASA, treat tool-sourced keywords as unvalidated and flag them as candidates to watch after launch.
 - **Brainstorm with an LLM, then verify.** Use a model to map the keyword landscape and surface terms you'd miss, but run the candidates through an ASO tool and ASA before they go in a field. Don't ship un-validated guesses.
 
@@ -140,9 +138,9 @@ The fields above are only as good as the words you put in them. This is how to c
 - Don't burn a word here that you also need in the subtitle or keyword field.
 
 **Examples**
-- ❌ `Reps` (4) — brand only. No keyword does any search work, and the bare word is generic.
-- ❌ `Reps: #1 Best Workout App Free` (30) — wastes space on "App", and "#1", "Best", and "Free" invite a metadata rejection.
-- ✅ `Home Workouts & Gym Log: Reps` (29) — the primary keyword "Home Workouts" leads, "Gym Log" rides along, brand sits at the end, and nothing is wasted.
+- ❌ `Reps` (4). Brand only. No keyword does any search work, and the bare word is generic.
+- ❌ `Reps: #1 Best Workout App Free` (30). Wastes space on "App", and "#1", "Best", and "Free" invite a metadata rejection.
+- ✅ `Home Workouts & Gym Log: Reps` (29). The primary keyword "Home Workouts" leads, "Gym Log" rides along, brand sits at the end, and nothing is wasted.
 
 ### Subtitle
 
@@ -151,8 +149,8 @@ The fields above are only as good as the words you put in them. This is how to c
 - Put the highest-value terms first.
 
 **Examples**
-- ❌ `Home Workout & Gym Tracker` (26) — every strong word here ("Home", "Workout", "Gym") is already in the title, so the subtitle adds almost no new search coverage.
-- ✅ `Exercise tracker & progress` (27) — three new indexable words ("Exercise", "tracker", "progress"), none in the title, and it describes what Reps actually is, a tracker, instead of promising coaching it doesn't do.
+- ❌ `Home Workout & Gym Tracker` (26). Every strong word here ("Home", "Workout", "Gym") is already in the title, so the subtitle adds almost no new search coverage.
+- ✅ `Exercise tracker & progress` (27). Three new indexable words ("Exercise", "tracker", "progress"), none in the title, and it describes what Reps actually is, a tracker, instead of promising coaching it doesn't do.
 
 ### Keyword field
 
@@ -161,8 +159,8 @@ The fields above are only as good as the words you put in them. This is how to c
 - Don't use competitor trademarks. It risks rejection and legal trouble. Use the full 100 characters.
 
 **Examples**
-- ❌ `workout, workouts, exercise app, gym, free progress tracker` (59) — nearly every token is wasted: "workouts" and "gym" repeat the name, "exercise", "progress", and "tracker" repeat the subtitle, "workout" only pairs a singular with the plural that's already there, "app" and "free" aren't allowed, and the spaces after each comma cost characters too.
-- ✅ `hiit,cardio,strength,training,weight,dumbbell,abs,core,bodyweight,routine,sets,muscle,pilates,squat` (99) — all new single words, no overlap with the name or subtitle, no spaces, and nearly the whole budget used.
+- ❌ `workout, workouts, exercise app, gym, free progress tracker` (59). Nearly every token is wasted: "workouts" and "gym" repeat the name, "exercise", "progress", and "tracker" repeat the subtitle, "workout" only pairs a singular with the plural that's already there, "app" and "free" aren't allowed, and the spaces after each comma cost characters too.
+- ✅ `hiit,cardio,strength,training,weight,dumbbell,abs,core,bodyweight,routine,sets,muscle,pilates,squat` (99). All new single words, no overlap with the name or subtitle, no spaces, and nearly the whole budget used.
 
 ### Description
 
@@ -170,8 +168,8 @@ The fields above are only as good as the words you put in them. This is how to c
 - Write for people, not search. On iOS the description isn't indexed, so keep it scannable and benefit-led with short paragraphs or bullets. (If you also publish on Google Play, that store does index the description, so you may want a different version there.)
 
 **Examples**
-- ❌ `Reps is the best workout app for home workouts, gym workouts, fitness, exercise, hiit, cardio, and strength training workouts!` — keyword soup that does nothing for iOS ranking and reads like spam to the one person who matters, the user deciding whether to install.
-- ✅ `Build a workout habit that actually sticks. Reps gives you guided home and gym routines, tracks every set, and shows your strength climbing week over week.` — opens with the benefit, names what the app does, and stays readable.
+- ❌ `Reps is the best workout app for home workouts, gym workouts, fitness, exercise, hiit, cardio, and strength training workouts!` Keyword soup that does nothing for iOS ranking and reads like spam to the one person who matters, the user deciding whether to install.
+- ✅ `Build a workout habit that actually sticks. Reps gives you guided home and gym routines, tracks every set, and shows your strength climbing week over week.` Opens with the benefit, names what the app does, and stays readable.
 
 ### Promotional text
 
@@ -180,8 +178,8 @@ The fields above are only as good as the words you put in them. This is how to c
 - Don't waste it restating the subtitle. It's free to change, so it's a low-risk place to test angles, even though it never affects ranking.
 
 **Examples**
-- ❌ `Reps is a fitness app for workouts and exercise.` (48) — restates the subtitle, says nothing timely, and squanders the one field you can update on a whim.
-- ✅ `New in June: 20 follow-along HIIT sessions plus an Apple Watch app. Start your free 7-day trial and plan your first week in under 5 minutes.` (140) — timely, leads with the hook, and gives a concrete reason to act now.
+- ❌ `Reps is a fitness app for workouts and exercise.` (48). Restates the subtitle, says nothing timely, and squanders the one field you can update on a whim.
+- ✅ `New in June: 20 follow-along HIIT sessions plus an Apple Watch app. Start your free 7-day trial and plan your first week in under 5 minutes.` (140). Timely, leads with the hook, and gives a concrete reason to act now.
 
 ### What's New
 
@@ -190,18 +188,18 @@ The fields above are only as good as the words you put in them. This is how to c
 - It isn't indexed, so it's for users, not keywords. You can still mention a new feature that happens to support a keyword theme, just don't stuff it.
 
 **Examples**
-- ❌ `Bug fixes and performance improvements.` — generic, and as a standing note it tells a prospective user nothing.
-- ✅ `You can now download workouts for offline gym sessions, and rest timers keep running on your lock screen. We also fixed a crash when syncing Apple Health.` — concrete, leads with the change people will care about.
+- ❌ `Bug fixes and performance improvements.` Generic, and as a standing note it tells a prospective user nothing.
+- ✅ `You can now download workouts for offline gym sessions, and rest timers keep running on your lock screen. We also fixed a crash when syncing Apple Health.` Concrete, leads with the change people will care about.
 
 ### Screenshots & app previews
 
 - The first two screenshots do most of the work in search results, so put your strongest value proposition there.
-- Caption each one with 3–5 words of bold text and show the real UI behind it, not abstract marketing art.
-- Whether Apple reads caption text for search is unsettled, so don't count on screenshots for ranking. Either way, make the captions communicate the app's value simply and directly in plain language — that's what converts, and it's the safe bet if the OCR signal turns out to be real.
+- Caption each one with 3-5 words of bold text and show the real UI behind it, not abstract marketing art.
+- Whether Apple reads caption text for search is unsettled, so don't count on screenshots for ranking. Either way, make the captions communicate the app's value simply and directly in plain language. That's what converts, and it's the safe bet if the OCR signal turns out to be real.
 - Keep the app preview's poster frame compelling and readable with the sound off.
 
 **Examples**
-- ❌ A first screenshot of the sign-in screen, or a raw UI shot with no caption — it asks the viewer to figure out the value themselves.
+- ❌ A first screenshot of the sign-in screen, or a raw UI shot with no caption. It asks the viewer to figure out the value themselves.
 - ✅ First two screenshots each carrying one value prop in bold over a real screen: `Guided home workouts` and `Track every set`.
 
 ### App icon
@@ -226,7 +224,7 @@ Run every drafted field through this before you call a listing done. It turns th
 - [ ] **Across name + subtitle + keyword field, each keyword appears once.**
 - [ ] **Description** opens with the benefit in the first few lines and isn't keyword-stuffed (it isn't indexed on iOS).
 - [ ] **Promotional text** is within 170 characters with the hook in the first ~50.
-- [ ] **Screenshots** lead with the two strongest value props, captioned in 3–5 words over real UI.
+- [ ] **Screenshots** lead with the two strongest value props, captioned in 3-5 words over real UI.
 - [ ] **What's New** leads with a real, specific change, not a bare "bug fixes" note.
 - [ ] **In-app purchase / event display names** use real keyword terms, not internal codes.
 - [ ] **Nothing risks a metadata rejection** (see "Metadata that gets rejected" below).
@@ -264,11 +262,9 @@ Apple's "Accurate Metadata" guideline (App Review Guideline 2.3) governs what yo
 | Keyword-stuffing the **description** to rank on iOS | The App Store doesn't index the description. Write it to convert and keep keywords in the name, subtitle, and keyword field |
 | Repeating the same word across name, subtitle, and keyword field | Use each word once. Apple combines tokens, so there's no point spending the limit twice |
 | Spaces after commas in the keyword field | Remove them. They eat the 100-character budget for nothing |
-| Using competitor brand names as keywords | Drop them. They invite rejection and trademark trouble |
-| Translating the Spanish (Mexico) fields instead of using the cross-index | The US store reads es-MX name/subtitle, so fill them with extra English keywords, not a translation |
-| Trusting tool volume without checking | Validate with an Apple Search Ads exact-match campaign when you have one; otherwise flag the keywords as unvalidated |
-| Changing metadata constantly | Index and settle takes ~2 weeks; batch changes and test every 2–4 weeks so you can read the result |
-| Treating screenshots 4–10 as important | The first two drive most of the conversion in search results, so put the value there |
+| Using competitor brand names as keywords | Drop them. They invite rejection and trademark trouble || Trusting tool volume without checking | Validate with an Apple Search Ads exact-match campaign when you have one; otherwise flag the keywords as unvalidated |
+| Changing metadata constantly | Index and settle takes ~2 weeks; batch changes and test every 2 to 4 weeks so you can read the result |
+| Treating screenshots 4 to 10 as important | The first two drive most of the conversion in search results, so put the value there |
 
 ---
 
