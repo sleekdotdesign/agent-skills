@@ -1,6 +1,6 @@
 ---
 name: sleek-mobile-app-onboarding
-description: Use when the user wants to design or improve a mobile app's onboarding: the first-run flow and the copy in it. Covers flow structure (welcome and value screens, a personalization or survey step, permission priming, sign-up and paywall placement, the activation or "aha" moment, first-run empty states) and the copy inside it (value props, microcopy, button labels, permission rationale), plus reducing drop-off and time-to-value. Handles broad requests ("design onboarding for my app", "reduce onboarding drop-off") and specific ones ("write a notification priming screen", "where should the paywall go", "rewrite this welcome screen"). Not for App Store listing or ASO, visual design or screen building, or long-term retention and re-engagement past the first session.
+description: Use when the user wants to design or improve a mobile app's onboarding: the first-run flow and the copy in it. Covers flow structure (welcome and value screens, a personalization or survey step, permission priming, sign-up and paywall placement, the activation or "aha" moment, first-run empty states) and the copy inside it (value props, microcopy, button labels, permission rationale), plus reducing drop-off and time-to-value. Handles broad requests ("design onboarding for my app", "reduce onboarding drop-off") and specific ones ("write a notification priming screen", "where should the paywall go", "rewrite this welcome screen"). Not for App Store listing or ASO, visual design or screen building, long-term retention and re-engagement past the first session, or pricing strategy (this covers where the paywall goes and how to write it, not what to charge).
 ---
 
 # Mobile App Onboarding
@@ -49,8 +49,8 @@ The common screen types, what each one does, and where it tends to sit. Treat th
 | ----------- | ------------ | -------------- | ---------------- |
 | **Welcome / value** | States the core value in a line and reassures the user the download was a good call | Almost always | First |
 | **Value highlights** | A few benefit-led screens for value that needs more than one line | When the value is not obvious from a single screen | Early, skippable |
-| **Personalization survey** | Tailors the app to the user and, in subscription apps, builds investment | When the answers visibly change the product | Early to middle |
-| **Social proof** | Authentic ratings or testimonials at a trust-sensitive moment | Near the paywall or another big ask | Sprinkled |
+| **Personalization survey** | Tailors the app to the user and, in subscription apps, builds investment | When the answers visibly change the product | Early, after the value screens |
+| **Social proof** | Authentic ratings or testimonials at a trust-sensitive moment | Near the paywall or another big ask | Repeated, especially before the paywall |
 | **Processing / personalizing** | A short, honest "building your plan" beat | Only when the app actually assembles something | After the survey |
 | **Permission priming** | A value-first screen shown before a system permission prompt | Before each sensitive permission the app needs | In context, per feature |
 | **Sign-up / login** | Account creation | Only when a feature needs an account | As late as the app allows |
@@ -167,7 +167,7 @@ This is the most-tested and least-settled decision in the flow. Present the opti
 
 **Examples**
 - ❌ Ending onboarding on the paywall and dropping the user onto an empty home screen.
-- ✅ Guide the first action: "Log your first set," with a one-tap example, then show the recorded workout. That recorded set is the real success worth celebrating.
+- ✅ Guide the first action: "Log your first workout," with a one-tap example set, then show it recorded in the history. That first logged workout is the real success worth celebrating.
 
 ### First-run empty states
 
@@ -207,7 +207,7 @@ Work in this order. Each step leans on the sections above.
 6. **Place sign-up and the paywall.** Sign-up as late as the app allows; the paywall per the model you chose, flagged for testing.
 7. **Mark the activation step and the first-run empty states.** Make sure the flow ends on the first real action, not on a wall.
 8. **Run the Self-check.**
-9. **Output the flow** as an ordered list of screens with the copy for each, and flag every contested choice (paywall placement, survey length, name capture) and anything that needs checking against current platform docs.
+9. **Output the flow** as an ordered list of screens with the copy for each, and flag every contested choice (paywall placement, survey length, name capture) and anything that needs checking against current platform docs (the items marked "Verify current" in Platform notes).
 
 ---
 
