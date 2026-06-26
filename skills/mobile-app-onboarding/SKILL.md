@@ -1,6 +1,6 @@
 ---
 name: sleek-mobile-app-onboarding
-description: Use when the user wants to design or improve a mobile app's onboarding: the first-run flow and the copy in it. Covers flow structure (welcome and value screens, a personalization or survey step, permission priming, sign-up and paywall placement, the activation or "aha" moment, first-run empty states) and the copy inside it (value props, microcopy, button labels, permission rationale), plus reducing drop-off and time-to-value. Handles broad requests ("design onboarding for my app", "reduce onboarding drop-off") and specific ones ("write a notification priming screen", "where should the paywall go", "rewrite this welcome screen"). Not for App Store listing or ASO (see sleek-apple-store-metadata-aso), visual design or screen building (see sleek-design-mobile-apps), or long-term retention and re-engagement past the first session.
+description: Use when the user wants to design or improve a mobile app's onboarding: the first-run flow and the copy in it. Covers flow structure (welcome and value screens, a personalization or survey step, permission priming, sign-up and paywall placement, the activation or "aha" moment, first-run empty states) and the copy inside it (value props, microcopy, button labels, permission rationale), plus reducing drop-off and time-to-value. Handles broad requests ("design onboarding for my app", "reduce onboarding drop-off") and specific ones ("write a notification priming screen", "where should the paywall go", "rewrite this welcome screen"). Not for App Store listing or ASO, visual design or screen building, or long-term retention and re-engagement past the first session.
 ---
 
 # Mobile App Onboarding
@@ -10,8 +10,8 @@ Onboarding is everything between the first launch and the moment a new user gets
 > **Scope.** This skill is about the onboarding flow and its copy: the sequence of screens a new user sees and the words on them. It covers the screen types, what order they go in, permission priming, where sign-up and the paywall belong, the activation moment, and first-run empty states.
 >
 > Some things sit next to onboarding but belong elsewhere:
-> - **App Store listing and ASO.** That is pre-install. See the sibling `sleek-apple-store-metadata-aso` skill.
-> - **Visual design, UI systems, and building the screens.** See `sleek-design-mobile-apps`.
+> - **App Store listing and ASO.** That is pre-install, a separate concern from the first-run flow this skill covers.
+> - **Visual design, UI systems, and building the screens.** This skill is about the flow and the copy, not how the screens look or how they are built.
 > - **Long-term retention, re-engagement, and lifecycle messaging past the first session.** That is a later phase with its own playbook.
 > - **Acquisition, growth, and ad creative.** Also pre-install.
 > - **Pricing strategy and the monetization model.** This skill covers where the paywall goes and how to write it, not what to charge.
