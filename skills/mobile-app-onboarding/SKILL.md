@@ -224,8 +224,6 @@ Run the drafted flow through this before calling it done. It turns the rules abo
 - [ ] The **priming screen does not imitate the system alert.**
 - [ ] **Sign-up is deferred** until value is shown, or justified by a core feature, and a privacy-focused login is offered if a social login is.
 - [ ] The **paywall offer** states what you get, the price, and the trial terms in plain language, and its placement is flagged for testing.
-- [ ] **Social proof is authentic,** not fabricated.
-- [ ] **No fake processing delay** is used to simulate personalization.
 - [ ] **Multi-step flows show honest progress.**
 - [ ] **Button labels are specific verbs,** not "Continue" or "Submit".
 - [ ] **First-run empty states** tell the user what goes there and give one action.
