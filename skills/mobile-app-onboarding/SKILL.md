@@ -240,7 +240,6 @@ Run the drafted flow through this before calling it done. It turns the rules abo
 | A long survey bolted onto a free utility | Match flow length to the model; utilities get to value fast, surveys belong to investment-style subscription apps |
 | Asking for data with no reason | Put the "why" on every field and cut anything that does not change the product |
 | A fake "analyzing" delay | Show processing only when the app actually computes something; faking it costs trust |
-| Fabricated reviews or testimonials | Use real ratings and real testimonials; fake ones break trust and violate store rules |
 | Generic button labels ("Continue", "Submit") | Use the specific action verb ("Log a workout", "Turn on reminders") |
 | Ending on a paywall into an empty home screen | End on the activation action and design first-run empty states with one clear next step |
 | Treating paywall placement as settled | A/B test it; hard vs post-value depends on the app |
