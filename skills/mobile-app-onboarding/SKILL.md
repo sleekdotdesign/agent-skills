@@ -251,15 +251,15 @@ Run the drafted flow through this before calling it done. It turns the rules abo
 
 ## Platform notes
 
-Permission flows and account rules differ by platform and change over time. Verify against current docs before relying on a specific rule. Source links are in [Primary sources](#primary-sources).
+Permission flows and account rules differ by platform and change over time. Verify against the current Apple and Android docs before relying on a specific rule.
 
 ### iOS
 
-- **Requesting permission**. Ask in context, only when a feature needs it, with a usage-description string in `Info.plist` explaining why (required for each sensitive permission). A custom priming screen before the system prompt is allowed, but it must not imitate the system alert or use a button that implies it grants access. Verify current.
+- **Requesting permission**. Ask in context, only when a feature needs it, with a usage-description string in `Info.plist` explaining why (required for each sensitive permission). A custom priming screen before the system prompt is allowed, but it must not imitate the system alert or use a button that implies it grants access (Apple Human Interface Guidelines). Verify current.
 - **Notifications**. The standard permission alert is shown once. If the user declines, you cannot re-trigger the system prompt; they would have to enable it in Settings, so prime first. **Provisional authorization** (`UNAuthorizationOptions.provisional`, iOS 12 and later) lets you deliver notifications quietly to Notification Center with no upfront prompt, and the user keeps or turns them off after seeing a few.
 - **App Tracking Transparency**. If the app tracks users across other companies' apps and sites, it must request permission through the ATT framework with an `NSUserTrackingUsageDescription` string. The prompt is one-time; the choice is remembered until the user changes it in Settings or reinstalls the app, and the advertising identifier stays zeroed unless the user allows tracking. A pre-prompt explaining value is common practice, but Apple bars screens that imitate the system alert. Verify current.
 - **Accounts**. Do not require sign-in unless account features are integral to the app (Guideline 5.1.1). If the app supports account creation, it must offer in-app account deletion. If it offers a third-party or social login, it must also offer an equivalent privacy-focused login: one that limits collection to the user's name and email, lets the user keep the email private, and does not collect interactions with the app for advertising without consent (Guideline 4.8; Sign in with Apple meets this). Verify current.
-- **Launch**. Apple treats onboarding as optional and tells you to get people to content fast. The launch screen is not an onboarding screen or a splash screen.
+- **Launch**. Apple treats onboarding as optional and tells you to get people to content fast. The launch screen is not an onboarding screen or a splash screen (Apple Human Interface Guidelines).
 
 ### Android
 
@@ -275,14 +275,3 @@ Permission flows and account rules differ by platform and change over time. Veri
 - The contested calls in this skill are genuinely unsettled and app-dependent: paywall placement, onboarding length, how much a personalization survey helps, name capture, and processing screens. Treat them as defaults to test, not laws, and A/B test where you can.
 - Opt-in and conversion rates move constantly and vary by category, so this skill avoids quoting them. If you need a benchmark, measure your own funnel rather than trusting a number from a blog.
 - This skill is guidance only. It needs no API key and no network access.
-
-### Primary sources
-
-- Apple Human Interface Guidelines, Onboarding: https://developer.apple.com/design/human-interface-guidelines/onboarding
-- Apple Human Interface Guidelines, Launching: https://developer.apple.com/design/human-interface-guidelines/launching
-- Apple Human Interface Guidelines, Privacy and requesting permission: https://developer.apple.com/design/human-interface-guidelines/privacy
-- Apple App Tracking Transparency: https://developer.apple.com/documentation/apptrackingtransparency
-- Apple, provisional notification authorization: https://developer.apple.com/documentation/usernotifications/unauthorizationoptions/provisional
-- Apple App Store Review Guidelines (5.1.1 accounts, 4.8 login services): https://developer.apple.com/app-store/review/guidelines/
-- Android notification runtime permission (POST_NOTIFICATIONS): https://developer.android.com/develop/ui/views/notifications/notification-permission
-- Android requesting runtime permissions: https://developer.android.com/training/permissions/requesting
