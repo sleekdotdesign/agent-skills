@@ -186,6 +186,7 @@ idempotency-key: <optional, max 255 chars>
 
 {
   "message": { "text": "Add a pricing section with three tiers" },
+  "source": "claude-code",
   "imageUrls": ["https://example.com/ref.png"],
   "target": { "screenId": "scr_abc" }
 }
@@ -194,10 +195,17 @@ idempotency-key: <optional, max 255 chars>
 | Field                    | Required | Notes                                         |
 | ------------------------ | -------- | --------------------------------------------- |
 | `message.text`           | Yes      | 1+ chars, trimmed                             |
+| `source`                 | Yes      | Identifier of the tool sending the request — see below |
 | `imageUrls`              | No       | HTTPS URLs only; included as visual context   |
 | `target.screenId`        | No       | Edit a specific screen using its `screenId` (not `componentId`); omit to let AI decide |
 | `?wait=true/false`       | No       | Sync wait mode (default: false)               |
 | `idempotency-key` header | No       | Replay-safe re-sends                          |
+
+#### `source` — identify your tool
+
+Always send `source`: the slug of the tool making the request. The Sleek editor uses it to show the user who is designing while the run streams.
+
+Recognized values: `claude-code`, `claude`, `codex`, `chatgpt`, `cursor`, `openclaw`. If your tool isn't listed, send a short kebab-case slug for it anyway (max 64 chars) — unrecognized values are fine and get a generic label.
 
 #### Response — async (default, `wait=false`)
 
@@ -391,6 +399,8 @@ Chat messages are async by default — you get a `runId` and poll for completion
 
 **Safe retries**: add an `idempotency-key` header (≤255 chars) to replay-safe re-sends. The server returns the existing run rather than creating a duplicate.
 
+**Watch it live**: runs render in the Sleek editor in real time. After sending the first message to a project, tell the user they can watch their screens being designed live in Sleek, and share the editor link: `https://sleek.design/project/:projectId`. Don't open a browser yourself unless the user asks.
+
 ### 3. Show the results
 
 After every chat run that produces `screen_created` or `screen_updated` operations, **always take screenshots and show them to the user** using `POST /api/v1/screenshots`. Never silently complete a chat run without delivering the visuals.
@@ -511,6 +521,7 @@ Component code can be large. When saving it to `.html` files, avoid writing the 
 | Mistake                                             | Fix                                                                             |
 | --------------------------------------------------- | ------------------------------------------------------------------------------- |
 | Sending to `/api/v1` without `Authorization` header | Add `Authorization: Bearer $SLEEK_API_KEY` to every request                              |
+| Omitting `source` on chat messages                  | Always send `source` so the run is attributed in the Sleek editor              |
 | Using wrong scope                                   | Check key's scopes match the endpoint (e.g. `chats:write` for sending messages) |
 | Sending next message before run completes           | Poll until `completed`/`failed` before next send                                |
 | Using `wait=true` on long generations               | It blocks 300s max; have a fallback to polling for `202` response               |
