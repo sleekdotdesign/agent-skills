@@ -19,6 +19,7 @@ metadata:
 **Auth**: `Authorization: Bearer $SLEEK_API_KEY` on every `/api/v1/*` request
 **Content-Type**: `application/json` (requests and responses)
 **CORS**: Enabled on all `/api/v1/*` endpoints
+**API docs**: OpenAPI spec at `https://sleek.design/api/v1/spec.json`; browsable docs at `https://sleek.design/api/v1/docs`. Fetch the spec for any contract detail not covered here.
 
 ---
 
@@ -65,6 +66,8 @@ Each project has its own theme, style, and design system. If the user wants mult
 ### 2. Send a chat message
 
 Send the request with `POST /api/v1/projects/:id/chat/messages`. Sleek has its own AI that plans screen content, visual style, and layout: pass the user's request as-is and let it plan. Don't add details the user didn't ask for, and don't decompose the request into screens; send the full intent as a single message. If the user described specific screens and styling, include those. Sleek produces richer designs when given room to plan.
+
+**Seed a style with a reference**: Sleek curates a catalog of design references. When the user wants a specific look or asks for style options, list them with `GET /api/v1/references` (each has a `name` and `previewImageUrls` you can show) and pass the chosen id as `referenceId` on the first message to a project, so its style guide seeds the whole design.
 
 **Identify your tool**: always send `source`, the slug of the tool making the request. The Sleek editor uses it to show the user who is designing while the run streams. Recognized values: `claude-code`, `claude`, `codex`, `chatgpt`, `cursor`, `openclaw`. If your tool isn't listed, send a short kebab-case slug for it anyway (max 64 chars). Unrecognized values are fine and get a generic label.
 
@@ -189,6 +192,7 @@ The designs may include navigation elements like tab bars and headers. Update th
 | `DELETE` | `/api/v1/projects/:id`                         | `projects:write`  | Delete project    |
 | `GET`    | `/api/v1/projects/:id/components`              | `components:read` | List components   |
 | `GET`    | `/api/v1/projects/:id/components/:componentId` | `components:read` | Get component     |
+| `GET`    | `/api/v1/references`                           | any valid key     | List references   |
 | `POST`   | `/api/v1/projects/:id/chat/messages`           | `chats:write`     | Send chat message |
 | `GET`    | `/api/v1/projects/:id/chat/runs/:runId`        | `chats:read`      | Poll run status   |
 | `POST`   | `/api/v1/projects/:id/chat/runs/:runId/cancel` | `chats:write`     | Cancel run        |
@@ -294,6 +298,34 @@ Response `200`: `{ "data": ... }` with a single component in the same shape as a
 
 ---
 
+### References
+
+References are curated design styles from featured Sleek projects. They are world-readable: any valid API key can list them, no scope needed.
+
+```http
+GET /api/v1/references?limit=50&offset=0
+Authorization: Bearer $SLEEK_API_KEY
+```
+
+Response `200`:
+
+```json
+{
+  "data": [
+    {
+      "id": "proj_ref1",
+      "name": "Ember Fitness",
+      "previewImageUrls": ["https://.../screenshot.png"]
+    }
+  ],
+  "pagination": { "total": 44, "limit": 50, "offset": 0 }
+}
+```
+
+To use one, pass its `id` as `referenceId` on [Send Message](#chat-send-message).
+
+---
+
 ### Chat: Send Message
 
 This is the core action: describe what you want in `message.text` and the AI creates or modifies screens.
@@ -308,7 +340,8 @@ idempotency-key: <optional, max 255 chars>
   "message": { "text": "Add a pricing section with three tiers" },
   "source": "claude-code",
   "imageUrls": ["https://example.com/ref.png"],
-  "target": { "screenId": "scr_abc" }
+  "target": { "screenId": "scr_abc" },
+  "referenceId": "proj_ref1"
 }
 ```
 
@@ -318,6 +351,7 @@ idempotency-key: <optional, max 255 chars>
 | `source`                 | Yes      | Slug of the tool sending the request (see [step 2 of Designing](#2-send-a-chat-message)) |
 | `imageUrls`              | No       | HTTPS URLs only; included as visual context                                              |
 | `target.screenId`        | No       | Edit a specific screen using its `screenId` (not `componentId`); omit to let AI decide   |
+| `referenceId`            | No       | Seed the design style from a reference (see [References](#references)); invalid id → `400` |
 | `?wait=true/false`       | No       | Sync wait mode (default: false)                                                          |
 | `idempotency-key` header | No       | Replay-safe re-sends                                                                     |
 
