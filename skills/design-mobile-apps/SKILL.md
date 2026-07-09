@@ -25,9 +25,9 @@ metadata:
 
 ## Prerequisites: API Key
 
-Create API keys at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation. Store it in the `SLEEK_API_KEY` environment variable.
+If `SLEEK_API_KEY` is not set, send the user to **https://sleek.design/agents/setup** — it handles sign-in, plan upgrade, and key creation in one place. Ask them to paste the key back to you (or set it as the `SLEEK_API_KEY` environment variable). Keys can also be managed at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation.
 
-**Required plan**: Pro or higher (API access is gated)
+**Required plan**: Pro or higher ($49.99/month, includes 20,000 monthly AI credits — roughly 650 screens). Tell the user this up front if they aren't on Pro yet. If they want to try Sleek before upgrading, they can design free in the browser at https://sleek.design.
 
 ### Key scopes
 
@@ -491,14 +491,17 @@ Response: raw binary `image/png` or `image/webp` with `Content-Disposition: atta
 { "code": "UNAUTHORIZED", "message": "..." }
 ```
 
-| HTTP | Code                    | When                                   |
-| ---- | ----------------------- | -------------------------------------- |
-| 401  | `UNAUTHORIZED`          | Missing/invalid/expired API key        |
-| 403  | `FORBIDDEN`             | Valid key, wrong scope or plan         |
-| 404  | `NOT_FOUND`             | Resource doesn't exist                 |
-| 400  | `BAD_REQUEST`           | Validation failure                     |
-| 409  | `CONFLICT`              | Another run is active for this project |
-| 500  | `INTERNAL_SERVER_ERROR` | Server error                           |
+| HTTP | Code                    | When                                                    |
+| ---- | ----------------------- | ------------------------------------------------------- |
+| 401  | `UNAUTHORIZED`          | Missing/invalid/expired API key                         |
+| 403  | `FORBIDDEN`             | Valid key, wrong scope or plan                          |
+| 404  | `NOT_FOUND`             | Resource doesn't exist                                  |
+| 400  | `BAD_REQUEST`           | Validation failure                                      |
+| 409  | `CONFLICT`              | Another run is active for this project                  |
+| 429  | `TOO_MANY_REQUESTS`     | Organization exceeded the hourly run limit; retry later |
+| 500  | `INTERNAL_SERVER_ERROR` | Server error                                            |
+
+`401`, `403`, and `429` bodies may include `data.url` — a page where the user can fix the condition (create a key, upgrade the plan). When present, share that URL with the user instead of improvising one.
 
 Chat run-level errors (inside `data.error`):
 
@@ -507,6 +510,8 @@ Chat run-level errors (inside `data.error`):
 | `out_of_credits`   | Organization has no credits left      |
 | `execution_failed` | AI execution error                    |
 | `cancelled`        | Run cancelled via the cancel endpoint |
+
+An `out_of_credits` error includes `error.url` — the page where the user can top up credits. Relay it to the user; don't retry the run until they have.
 
 ---
 

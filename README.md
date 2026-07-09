@@ -26,8 +26,10 @@ npx skills add sleekdotdesign/agent-skills -s sleek-design-mobile-apps
 
 ## Requirements
 
-- A [Sleek](https://sleek.design) account on the Pro plan or higher
-- An API key created at [sleek.design/dashboard/api-keys](https://sleek.design/dashboard/api-keys), stored in the `SLEEK_API_KEY` environment variable
+- A [Sleek](https://sleek.design) account on the Pro plan or higher ($49.99/month, includes 20,000 monthly AI credits)
+- An API key, stored in the `SLEEK_API_KEY` environment variable — create one at [sleek.design/agents/setup](https://sleek.design/agents/setup) (handles sign-in, upgrade, and key creation in one place) or manage keys at [sleek.design/dashboard/api-keys](https://sleek.design/dashboard/api-keys)
+
+Note: `npx skills add` installs the skill to `.agents/skills/` in your working directory. If your agent doesn't discover skills there, point it at the installed `SKILL.md` explicitly.
 
 ## License
 
