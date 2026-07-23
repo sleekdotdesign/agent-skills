@@ -25,9 +25,9 @@ metadata:
 
 ## Prerequisites: API Key
 
-If `SLEEK_API_KEY` is not set, send the user to **https://sleek.design/agents/setup** — it handles sign-in, plan upgrade, and key creation in one place. Ask them to paste the key back to you (or set it as the `SLEEK_API_KEY` environment variable). Keys can also be managed at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation.
+If `SLEEK_API_KEY` is not set, send the user to **https://sleek.design/agents/setup**, which handles sign-in, plan upgrade, and key creation in one place. Ask them to paste the key back to you (or set it as the `SLEEK_API_KEY` environment variable). Keys can also be managed at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation.
 
-**Plans**: free accounts can try the API with their one-time trial credits (about one design run). Sustained agent use requires the Pro plan or higher ($49.99/month, includes 20,000 monthly AI credits — roughly 650 screens). Tell the user this up front.
+**Plans**: free accounts can try the API with their one-time trial credits (about one design run). Sustained agent use requires the Pro plan or higher ($49.99/month, includes 20,000 monthly AI credits, roughly 650 screens). Tell the user this up front.
 
 ### Key scopes
 
@@ -501,7 +501,7 @@ Response: raw binary `image/png` or `image/webp` with `Content-Disposition: atta
 | 429  | `TOO_MANY_REQUESTS`     | Organization exceeded the hourly run limit; retry later |
 | 500  | `INTERNAL_SERVER_ERROR` | Server error                                            |
 
-`401`, `403`, and `429` bodies may include `data.url` — a page where the user can fix the condition (create a key, upgrade the plan). When present, share that URL with the user instead of improvising one.
+`401`, `403`, and `429` bodies may include `data.url`: a page where the user can fix the condition (create a key, upgrade the plan). When present, share that URL with the user instead of improvising one.
 
 Chat run-level errors (inside `data.error`):
 
@@ -511,7 +511,7 @@ Chat run-level errors (inside `data.error`):
 | `execution_failed` | AI execution error                    |
 | `cancelled`        | Run cancelled via the cancel endpoint |
 
-An `out_of_credits` error includes `error.url` — the page where the user can top up credits. Relay it to the user; don't retry the run until they have.
+An `out_of_credits` error includes `error.url`, the page where the user can top up credits. Relay it to the user; don't retry the run until they have.
 
 ---
 
