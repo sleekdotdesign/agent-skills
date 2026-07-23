@@ -27,7 +27,7 @@ metadata:
 
 If `SLEEK_API_KEY` is not set, send the user to **https://sleek.design/agents/setup** — it handles sign-in, plan upgrade, and key creation in one place. Ask them to paste the key back to you (or set it as the `SLEEK_API_KEY` environment variable). Keys can also be managed at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation.
 
-**Required plan**: Pro or higher ($49.99/month, includes 20,000 monthly AI credits — roughly 650 screens). Tell the user this up front if they aren't on Pro yet. If they want to try Sleek before upgrading, they can design free in the browser at https://sleek.design.
+**Plans**: free accounts can try the API with their one-time trial credits (about one design run). Sustained agent use requires the Pro plan or higher ($49.99/month, includes 20,000 monthly AI credits — roughly 650 screens). Tell the user this up front.
 
 ### Key scopes
 
