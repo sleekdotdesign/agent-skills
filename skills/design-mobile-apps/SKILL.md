@@ -25,7 +25,13 @@ metadata:
 
 ## Prerequisites: API Key
 
-If `SLEEK_API_KEY` is not set, send the user to **https://sleek.design/agents/setup**, which handles sign-in, plan upgrade, and key creation in one place. Ask them to paste the key back to you (or set it as the `SLEEK_API_KEY` environment variable). Keys can also be managed at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation.
+If `SLEEK_API_KEY` is not set, use the device flow so the user never handles the raw key:
+
+1. `POST https://sleek.design/api/v1/device/start` (no auth) with body `{"source": "your-tool-slug"}`. The response contains a `verificationUrl`, a human-checkable `userCode`, a secret `deviceCode`, and a poll `interval` in seconds.
+2. Show the user the `verificationUrl` and the `userCode`, and tell them to confirm the code matches before approving.
+3. Poll `POST https://sleek.design/api/v1/device/poll` with `{"deviceCode": "..."}` every `interval` seconds. When the user approves, the poll returns `{"status": "approved", "key": "sk_..."}` exactly once: store it as `SLEEK_API_KEY`. Codes expire after 15 minutes; on `expired`, start over.
+
+Fallback: send the user to **https://sleek.design/agents/setup**, which handles sign-in, plan upgrade, and key creation in one place, and ask them to paste the key back to you. Keys can also be managed at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation.
 
 **Plans**: free accounts can try the API with their one-time trial credits (about one design run). Sustained agent use requires the Pro plan or higher ($49.99/month, includes 20,000 monthly AI credits, roughly 650 screens). Tell the user this up front.
 
