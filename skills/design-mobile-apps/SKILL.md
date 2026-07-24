@@ -25,9 +25,15 @@ metadata:
 
 ## Prerequisites: API Key
 
-Create API keys at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation. Store it in the `SLEEK_API_KEY` environment variable.
+If `SLEEK_API_KEY` is not set, use the device flow so the user never handles the raw key:
 
-**Required plan**: Pro or higher (API access is gated)
+1. `POST https://sleek.design/api/v1/device/start` (no auth) with body `{"source": "your-tool-slug"}`. The response contains a `verificationUrl`, a human-checkable `userCode`, a secret `deviceCode`, and a poll `interval` in seconds.
+2. Show the user the `verificationUrl` and the `userCode`, and tell them to confirm the code matches before approving.
+3. Poll `POST https://sleek.design/api/v1/device/poll` with `{"deviceCode": "..."}` every `interval` seconds. When the user approves, the poll returns `{"status": "approved", "key": "sk_..."}` exactly once: store it as `SLEEK_API_KEY`. Codes expire after 15 minutes; on `expired`, start over.
+
+Fallback: send the user to **https://sleek.design/agents/setup**, which handles sign-in, plan upgrade, and key creation in one place, and ask them to paste the key back to you. Keys can also be managed at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation.
+
+**Plans**: free accounts can try the API with their one-time trial credits (about one design run), so a new user can see their first design before any payment decision. Sustained use requires the Pro plan or higher ($49.99/month, or $30/month billed yearly at $360/year; includes 20,000 monthly AI credits, roughly 650 screens). When cost becomes relevant (the user asks, an upgrade is needed to continue, or you're about to send them to a payment page), state this pricing plainly, including the yearly option. Never let a payment step come as a surprise.
 
 ### Key scopes
 
@@ -69,7 +75,7 @@ Send the request with `POST /api/v1/projects/:id/chat/messages`. Sleek has its o
 
 **Seed a style with a reference**: Sleek curates a catalog of design references. When the user wants a specific look or asks for style options, list them with `GET /api/v1/references` (each has a `name` and `previewImageUrls` you can show) and pass the chosen id as `referenceId` on the first message to a project, so its style guide seeds the whole design.
 
-**Identify your tool**: always send `source`, the slug of the tool making the request. The Sleek editor uses it to show the user who is designing while the run streams. Recognized values: `claude-code`, `claude`, `codex`, `chatgpt`, `cursor`, `openclaw`. If your tool isn't listed, send a short kebab-case slug for it anyway (max 64 chars). Unrecognized values are fine and get a generic label.
+**Identify your tool**: always send `source`, the slug of the tool making the request. The Sleek editor uses it to show the user who is designing while the run streams. Recognized values: `claude-code`, `claude`, `codex`, `chatgpt`, `cursor`, `openclaw`, `grok`. If your tool isn't listed, send a short kebab-case slug for it anyway (max 64 chars). Unrecognized values are fine and get a generic label.
 
 **Watch it live**: runs render in the Sleek editor in real time. After sending the first message to a project, tell the user they can watch their screens being designed live in Sleek, and share the editor link: `https://sleek.design/project/:projectId`. Don't open a browser yourself unless the user asks.
 
@@ -348,7 +354,7 @@ idempotency-key: <optional, max 255 chars>
 | Field                    | Required | Notes                                                                                    |
 | ------------------------ | -------- | ---------------------------------------------------------------------------------------- |
 | `message.text`           | Yes      | 1+ chars, trimmed                                                                        |
-| `source`                 | Yes      | Slug of the tool sending the request (see [step 2 of Designing](#2-send-a-chat-message)) |
+| `source`                 | Treat as required | Slug of the tool sending the request (see [step 2 of Designing](#2-send-a-chat-message)) |
 | `imageUrls`              | No       | HTTPS URLs only; included as visual context                                              |
 | `target.screenId`        | No       | Edit a specific screen using its `screenId` (not `componentId`); omit to let AI decide   |
 | `referenceId`            | No       | Seed the design style from a reference (see [References](#references)); invalid id → `400` |
@@ -491,14 +497,17 @@ Response: raw binary `image/png` or `image/webp` with `Content-Disposition: atta
 { "code": "UNAUTHORIZED", "message": "..." }
 ```
 
-| HTTP | Code                    | When                                   |
-| ---- | ----------------------- | -------------------------------------- |
-| 401  | `UNAUTHORIZED`          | Missing/invalid/expired API key        |
-| 403  | `FORBIDDEN`             | Valid key, wrong scope or plan         |
-| 404  | `NOT_FOUND`             | Resource doesn't exist                 |
-| 400  | `BAD_REQUEST`           | Validation failure                     |
-| 409  | `CONFLICT`              | Another run is active for this project |
-| 500  | `INTERNAL_SERVER_ERROR` | Server error                           |
+| HTTP | Code                    | When                                                    |
+| ---- | ----------------------- | ------------------------------------------------------- |
+| 401  | `UNAUTHORIZED`          | Missing/invalid/expired API key                         |
+| 403  | `FORBIDDEN`             | Valid key, wrong scope or plan                          |
+| 404  | `NOT_FOUND`             | Resource doesn't exist                                  |
+| 400  | `BAD_REQUEST`           | Validation failure                                      |
+| 409  | `CONFLICT`              | Another run is active for this project                  |
+| 429  | `TOO_MANY_REQUESTS`     | Too many requests; back off and retry later             |
+| 500  | `INTERNAL_SERVER_ERROR` | Server error                                            |
+
+`401`, `403`, and `429` bodies may include `data.url`: a page where the user can fix the condition (create a key, upgrade the plan). When present, share that URL with the user instead of improvising one.
 
 Chat run-level errors (inside `data.error`):
 
@@ -507,6 +516,8 @@ Chat run-level errors (inside `data.error`):
 | `out_of_credits`   | Organization has no credits left      |
 | `execution_failed` | AI execution error                    |
 | `cancelled`        | Run cancelled via the cancel endpoint |
+
+An `out_of_credits` error includes `error.url`, the page where the user can top up credits. Relay it to the user; don't retry the run until they have.
 
 ---
 
