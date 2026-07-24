@@ -33,7 +33,7 @@ If `SLEEK_API_KEY` is not set, use the device flow so the user never handles the
 
 Fallback: send the user to **https://sleek.design/agents/setup**, which handles sign-in, plan upgrade, and key creation in one place, and ask them to paste the key back to you. Keys can also be managed at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation.
 
-**Plans**: free accounts can try the API with their one-time trial credits (about one design run). Sustained agent use requires the Pro plan or higher ($49.99/month, includes 20,000 monthly AI credits, roughly 650 screens). Tell the user this up front.
+**Plans**: free accounts can try the API with their one-time trial credits (about one design run). Sustained agent use requires the Pro plan or higher ($49.99/month, or $30/month billed yearly at $360/year; includes 20,000 monthly AI credits, roughly 650 screens). Tell the user this up front, including the yearly option.
 
 ### Key scopes
 
