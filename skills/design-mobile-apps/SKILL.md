@@ -504,7 +504,7 @@ Response: raw binary `image/png` or `image/webp` with `Content-Disposition: atta
 | 404  | `NOT_FOUND`             | Resource doesn't exist                                  |
 | 400  | `BAD_REQUEST`           | Validation failure                                      |
 | 409  | `CONFLICT`              | Another run is active for this project                  |
-| 429  | `TOO_MANY_REQUESTS`     | Organization exceeded the hourly run limit; retry later |
+| 429  | `TOO_MANY_REQUESTS`     | Too many requests; back off and retry later             |
 | 500  | `INTERNAL_SERVER_ERROR` | Server error                                            |
 
 `401`, `403`, and `429` bodies may include `data.url`: a page where the user can fix the condition (create a key, upgrade the plan). When present, share that URL with the user instead of improvising one.
