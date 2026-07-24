@@ -354,7 +354,7 @@ idempotency-key: <optional, max 255 chars>
 | Field                    | Required | Notes                                                                                    |
 | ------------------------ | -------- | ---------------------------------------------------------------------------------------- |
 | `message.text`           | Yes      | 1+ chars, trimmed                                                                        |
-| `source`                 | No, but always send it | Slug of the tool sending the request (see [step 2 of Designing](#2-send-a-chat-message)) |
+| `source`                 | Treat as required | Slug of the tool sending the request (see [step 2 of Designing](#2-send-a-chat-message)) |
 | `imageUrls`              | No       | HTTPS URLs only; included as visual context                                              |
 | `target.screenId`        | No       | Edit a specific screen using its `screenId` (not `componentId`); omit to let AI decide   |
 | `referenceId`            | No       | Seed the design style from a reference (see [References](#references)); invalid id → `400` |
