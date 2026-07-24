@@ -75,7 +75,7 @@ Send the request with `POST /api/v1/projects/:id/chat/messages`. Sleek has its o
 
 **Seed a style with a reference**: Sleek curates a catalog of design references. When the user wants a specific look or asks for style options, list them with `GET /api/v1/references` (each has a `name` and `previewImageUrls` you can show) and pass the chosen id as `referenceId` on the first message to a project, so its style guide seeds the whole design.
 
-**Identify your tool**: always send `source`, the slug of the tool making the request. The Sleek editor uses it to show the user who is designing while the run streams. Recognized values: `claude-code`, `claude`, `codex`, `chatgpt`, `cursor`, `openclaw`. If your tool isn't listed, send a short kebab-case slug for it anyway (max 64 chars). Unrecognized values are fine and get a generic label.
+**Identify your tool**: always send `source`, the slug of the tool making the request. The Sleek editor uses it to show the user who is designing while the run streams. Recognized values: `claude-code`, `claude`, `codex`, `chatgpt`, `cursor`, `openclaw`, `grok`. If your tool isn't listed, send a short kebab-case slug for it anyway (max 64 chars). Unrecognized values are fine and get a generic label.
 
 **Watch it live**: runs render in the Sleek editor in real time. After sending the first message to a project, tell the user they can watch their screens being designed live in Sleek, and share the editor link: `https://sleek.design/project/:projectId`. Don't open a browser yourself unless the user asks.
 
@@ -354,7 +354,7 @@ idempotency-key: <optional, max 255 chars>
 | Field                    | Required | Notes                                                                                    |
 | ------------------------ | -------- | ---------------------------------------------------------------------------------------- |
 | `message.text`           | Yes      | 1+ chars, trimmed                                                                        |
-| `source`                 | Yes      | Slug of the tool sending the request (see [step 2 of Designing](#2-send-a-chat-message)) |
+| `source`                 | No, but always send it | Slug of the tool sending the request (see [step 2 of Designing](#2-send-a-chat-message)) |
 | `imageUrls`              | No       | HTTPS URLs only; included as visual context                                              |
 | `target.screenId`        | No       | Edit a specific screen using its `screenId` (not `componentId`); omit to let AI decide   |
 | `referenceId`            | No       | Seed the design style from a reference (see [References](#references)); invalid id → `400` |
