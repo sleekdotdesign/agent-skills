@@ -71,7 +71,13 @@ Each project has its own theme, style, and design system. If the user wants mult
 
 ### 2. Send a chat message
 
-Send the request with `POST /api/v1/projects/:id/chat/messages`. Sleek has its own AI that plans screen content, visual style, and layout: pass the user's request as-is and let it plan. Don't add details the user didn't ask for, and don't decompose the request into screens; send the full intent as a single message. If the user described specific screens and styling, include those. Sleek produces richer designs when given room to plan.
+Send the request with `POST /api/v1/projects/:id/chat/messages`. Sleek plans screen content and layout from your message, and will invent a visual style if you don't give it one. Don't decompose the request into screens and don't add product details the user didn't ask for; send the full intent as a single message. If the user described specific screens, include those. Sleek produces richer designs when given room to plan.
+
+**Author a style direction**: write one whenever the user has given you anything to ground it in — reference images, apps they like, vibe adjectives, things to avoid — or whenever you're producing variations, one direction per variation. Pass the request through unchanged only when it's bare. A style direction is a single comprehensive paragraph, included in the message, covering mood (2–3 adjectives), color strategy (the logic, not hex codes), typography feel, layout philosophy, component style (radii, borders vs shadows, nav treatment), imagery and illustration style, and one or two distinctive details. Commit to a palette, a type direction, and an overall feel — anything that only sets a mood reads as a hint, not a direction. Be opinionated; don't hedge. Put the personality in color, type, and imagery rather than in unusual layout or navigation.
+
+Extend what the user gave you and never contradict it. When they point at reference images or apps they like, study each one and carry what you take into the direction — Sleek only sees images passed as `imageUrls`, so for anything local the direction is how those references reach it. Borrow patterns, never the source's branding, content, or name.
+
+Use a style direction or a `referenceId`, not both — a reference already carries a full style guide of its own.
 
 **Seed a style with a reference**: Sleek curates a catalog of design references. When the user wants a specific look or asks for style options, list them with `GET /api/v1/references` (each has a `name` and `previewImageUrls` you can show) and pass the chosen id as `referenceId` on the first message to a project, so its style guide seeds the whole design.
 
