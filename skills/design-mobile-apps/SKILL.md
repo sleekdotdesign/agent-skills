@@ -19,6 +19,7 @@ metadata:
 **Auth**: `Authorization: Bearer $SLEEK_API_KEY` on every `/api/v1/*` request
 **Content-Type**: `application/json` (requests and responses)
 **CORS**: Enabled on all `/api/v1/*` endpoints
+**Parsing responses**: write the body to a file (`curl -o run.json`) and parse the file. Don't pipe JSON through `echo`: in zsh it expands the escaped `\n` inside string values into real newlines, which makes the body invalid JSON.
 **API docs**: OpenAPI spec at `https://sleek.design/api/v1/spec.json`; browsable docs at `https://sleek.design/api/v1/docs`. Fetch the spec for any contract detail not covered here.
 
 ---
@@ -85,7 +86,7 @@ Use a style direction or a `referenceId`, not both — a reference already carri
 
 **Watch it live**: runs render in the Sleek editor in real time. After sending the first message to a project, tell the user they can watch their screens being designed live in Sleek, and share the editor link: `https://sleek.design/project/:projectId`. Don't open a browser yourself unless the user asks.
 
-**Polling**: chat messages are async by default: you get a `runId` and poll `GET /api/v1/projects/:id/chat/runs/:runId`. Start at 2s interval, back off to 5s after 10s, give up after 5 minutes. You can also use `?wait=true` for a blocking call (up to 300s; falls back to polling if it times out with `202`).
+**Polling**: chat messages are async by default: you get a `runId` and poll `GET /api/v1/projects/:id/chat/runs/:runId`. Start at 2s interval, back off to 5s after 10s, give up after 5 minutes. Exit on `completed` or `failed`; if you can't read the status, stop and report it rather than counting it as "not done yet". You can also use `?wait=true` for a blocking call (up to 300s; falls back to polling if it times out with `202`).
 
 **Editing a specific screen**: use `target.screenId` to direct changes to the right screen (uses the screen ID from operations, not the component ID).
 
@@ -544,5 +545,7 @@ GET /api/v1/projects?limit=10&offset=20
 | Omitting `source` on chat messages                                      | Always send `source` so the run is attributed in the Sleek editor                                    |
 | Using `wait=true` on long generations                                   | It blocks 300s max; have a fallback to polling for `202` response                                    |
 | Assuming `result` is present on `202`                                   | `result` is absent until status is `completed`                                                       |
+| Piping a JSON response through `echo` to parse it                       | zsh expands the `\n` in `assistantText` and breaks the JSON; parse from a file instead               |
+| Treating an unreadable run status as "not done yet"                     | The loop then spins to its cap long after the run finished; stop and report instead                  |
 | Using `screenId` as `componentIds` in screenshots                       | `screenId` and `componentId` are different; always use `componentId` from operations for screenshots |
 | Confusing `versions[i].version` (number) with `versions[i].id` (string) | When resolving pinned versions, match by `id` (e.g. `ver_001`); `version` is the numeric index       |
