@@ -107,6 +107,8 @@ Save screenshots in the project directory (not a temporary folder) so the user c
 
 **Showing vs reviewing**: the defaults capture only the viewport, which is the right framing for the user — screens look like phone screens. They are the wrong framing for judging your own work, because everything below the fold is cropped away. When you're reviewing what a run produced, re-shoot the screen with `fullHeight: true` (one screen per request) to see the whole scrollable page.
 
+Screenshot requests are independent, so issue them in parallel — the user-facing shot and your `fullHeight` review shot go out together, as do the shots for different screens. "One screen per request" governs what goes into each image, not how fast you send them; it is not a reason to wait for one response before starting the next. Back off only if you actually get a `429`.
+
 **Never call a screen incomplete from a viewport screenshot.** Content that looks missing is almost always just below the fold. Before telling the user something is absent, or sending a follow-up message asking Sleek to add it, confirm it against the whole screen: a `fullHeight: true` screenshot, or the component HTML from `GET /api/v1/projects/:id/components/:componentId`, which is the ground truth for what's on the screen. The screenshot is the default and answers most review questions on its own — don't go to the code to double-check something it already shows. Reach for the code only when you're about to claim something is missing: a render can omit what's really there (past the height cap, in a collapsed section, on a later carousel slide), so a negative conclusion is the one worth a second source. Note the reverse too — an element present in the HTML may still not be visible to the user.
 
 ---
@@ -499,7 +501,7 @@ Padding resolves with a cascade: per-side → axis → uniform. For example, `pa
 
 By default a component is captured at frame height, so anything the user would reach by scrolling is cut off. `fullHeight: true` expands each frame to the height of its own content before capturing. Use it when you're reviewing your own work; leave it off for the screenshots you show the user, where the phone-shaped framing is the point.
 
-Frames are capped at **4× the default frame height**, so a screen longer than that is still cut off at the bottom even with `fullHeight: true`. On a very long screen, treat the component HTML as the authority for what's below the cap. Expanded frames make for tall images; prefer one component per request so each screen keeps its detail.
+Frames are capped at **4× the default frame height**, so a screen longer than that is still cut off at the bottom even with `fullHeight: true`. On a very long screen, treat the component HTML as the authority for what's below the cap. Expanded frames make for tall images; prefer one component per request so each screen keeps its detail — and send those requests in parallel rather than one after another.
 
 When `showDots` is `true`, a dot pattern is drawn over the background color. The dots automatically adapt to the background: dark backgrounds get light dots, light backgrounds get dark dots. This has no effect when `background` is `"transparent"`.
 
