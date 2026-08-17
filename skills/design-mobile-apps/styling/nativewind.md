@@ -1,6 +1,6 @@
 # Styling: Nativewind
 
-Tailwind classes on React Native primitives: same elements, `className` in place of a style object, so the mockup's classes carry over almost verbatim. Reached from [React Native (Expo)](../SKILL.md#react-native-expo) when `nativewind` is in `package.json`.
+Tailwind classes on React Native primitives: same elements, `className` in place of a style object, so the mockup's classes carry over almost verbatim. Reached from [React Native (Expo)](../implementing.md#react-native-expo) when `nativewind` is in `package.json`.
 
 ## Check the installed major first
 
