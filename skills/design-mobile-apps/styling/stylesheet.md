@@ -1,6 +1,6 @@
 # Styling: StyleSheet
 
-React Native's built-in styling. Reached from [React Native (Expo)](../SKILL.md#react-native-expo) when the repo has no styling library.
+React Native's built-in styling. Reached from [React Native (Expo)](../implementing.md#react-native-expo) when the repo has no styling library.
 
 ## Token module
 

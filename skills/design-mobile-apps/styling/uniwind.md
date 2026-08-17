@@ -1,6 +1,6 @@
 # Styling: Uniwind
 
-Uniwind consumes Tailwind v4, which is what Sleek emits, so the mockup's classes carry over unchanged. Reached from [React Native (Expo)](../SKILL.md#react-native-expo) when `uniwind` is in `package.json`.
+Uniwind consumes Tailwind v4, which is what Sleek emits, so the mockup's classes carry over unchanged. Reached from [React Native (Expo)](../implementing.md#react-native-expo) when `uniwind` is in `package.json`.
 
 ## Theme
 
