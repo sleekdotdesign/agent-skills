@@ -1,20 +1,20 @@
 # Designing
 
-The full request/response shapes for every endpoint used below are in the [API reference](endpoints.md).
+Request and response shapes go beyond the fields named here; read the [API reference](endpoints.md) when you need a field this file doesn't name.
 
 ## 1. Create a project
 
-Create a project with `POST /api/v1/projects` if one doesn't exist yet. Derive a name from the request.
+Create a project with `POST /api/v1/projects` if one doesn't exist yet.
 
-Each project has its own theme, style, and design system. If the user wants multiple design variations, create a separate project for each variation.
+Each project has its own theme, style, and design system, so a project holds one style direction at a time. Even so, keep design variations in one project by default: project count is plan-capped (free 1, Starter 5), and `POST /api/v1/projects` answers a capped account with `403 FORBIDDEN` at `projects_limit`. That 403 carries no `data.url`, so name the cap and the upgrade to the user yourself. Spread variations across projects only when the user asks to see them side by side — and check the headroom with `GET /api/v1/projects` before you start.
 
 ## 2. Send a chat message
 
-Send the request with `POST /api/v1/projects/:id/chat/messages`. Sleek plans screen content and layout from your message, and will invent a visual style if you don't give it one. Don't decompose the request into screens and don't add product details the user didn't ask for; send the full intent as a single message. If the user described specific screens, include those. Sleek produces richer designs when given room to plan.
+Send the request with `POST /api/v1/projects/:id/chat/messages`. Sleek plans screen content and layout from your message, and invents a visual style when you give it none. Send the full intent as a single message in the user's own terms: Sleek does the decomposition into screens itself and produces richer designs when given room to plan. If the user described specific screens, include those.
 
-**Author a style direction**: write one whenever the user has given you anything to ground it in — reference images, apps they like, vibe adjectives, things to avoid — or whenever you're producing variations, one direction per variation. Pass the request through unchanged only when it's bare. A style direction is a single comprehensive paragraph, included in the message, covering mood (2–3 adjectives), color strategy (the logic, not hex codes), typography feel, layout philosophy, component style (radii, borders vs shadows, nav treatment), imagery and illustration style, and one or two distinctive details. Commit to a palette, a type direction, and an overall feel — anything that only sets a mood reads as a hint, not a direction. Be opinionated; don't hedge. Put the personality in color, type, and imagery rather than in unusual layout or navigation.
+**Author a style direction**: write one whenever the user has given you anything to ground it in — reference images, apps they like, vibe adjectives, things to avoid — or whenever you're producing variations, one direction per variation. Pass the request through unchanged only when it's bare. A style direction is a single comprehensive paragraph, included in the message, covering mood (2–3 adjectives), color strategy (the logic, not hex codes), typography feel, layout philosophy, component style (radii, borders vs shadows, nav treatment), imagery and illustration style, and one or two distinctive details. Commit to a palette, a type direction, and an overall feel — anything that only sets a mood reads as a hint, not a direction. Put the personality in color, type, and imagery rather than in unusual layout or navigation.
 
-Extend what the user gave you and never contradict it. When they point at reference images or apps they like, study each one and carry what you take into the direction — Sleek only sees images passed as `imageUrls`, so for anything local the direction is how those references reach it. Borrow patterns, never the source's branding, content, or name.
+Extend what the user gave you and keep every constraint they set. When they point at reference images or apps they like, study each one and carry what you take into the direction — Sleek only sees images passed as `imageUrls`, so for anything local the direction is how those references reach it. Borrow patterns, and leave the source's branding, content, and name behind.
 
 Use a style direction or a `referenceId`, not both — a reference already carries a full style guide of its own.
 
@@ -22,9 +22,11 @@ Use a style direction or a `referenceId`, not both — a reference already carri
 
 **Identify your tool**: always send `source`, the slug of the tool making the request. The Sleek editor uses it to show the user who is designing while the run streams. Recognized values: `claude-code`, `claude`, `codex`, `chatgpt`, `cursor`, `openclaw`, `grok`. If your tool isn't listed, send a short kebab-case slug for it anyway (max 64 chars). Unrecognized values are fine and get a generic label.
 
-**Watch it live**: runs render in the Sleek editor in real time. After sending the first message to a project, tell the user they can watch their screens being designed live in Sleek, and share the editor link: `https://sleek.design/project/:projectId`. Don't open a browser yourself unless the user asks.
+**Watch it live**: runs render in the Sleek editor in real time. After sending the first message to a project, tell the user they can watch their screens being designed live in Sleek, and share the editor link: `https://sleek.design/project/:projectId`. Open a browser yourself only when the user asks you to.
 
-**Polling**: chat messages are async by default: you get a `runId` and poll `GET /api/v1/projects/:id/chat/runs/:runId`. Start at 2s interval, back off to 5s after 10s, give up after 5 minutes. Exit on `completed` or `failed`; if you can't read the status, stop and report it rather than counting it as "not done yet". You can also use `?wait=true` for a blocking call (up to 300s; falls back to polling if it times out with `202`).
+**Polling**: chat messages are async by default: you get a `runId` and poll `GET /api/v1/projects/:id/chat/runs/:runId`. Start at a 2s interval, back off to 5s after 10s, and keep polling for **10 minutes**. That is the server's stale-run threshold: a run younger than 10 minutes still holds the project's single-run lock, so a message sent after giving up at minute 5 comes back `409 CONFLICT`. Exit on `completed` or `failed`; if you can't read the status, stop and report that rather than counting it as "not done yet". You can also use `?wait=true` for a blocking call (up to 300s; falls back to polling if it times out with `202`).
+
+A `failed` run can still carry a `result`: Sleek records the operations it applied before the failure. Read `result` on both terminal statuses, and screenshot and implement whatever screens were created.
 
 **Editing a specific screen**: use `target.screenId` to direct changes to the right screen (uses the screen ID from operations, not the component ID).
 
@@ -34,17 +36,19 @@ Use a style direction or a `referenceId`, not both — a reference already carri
 
 ## 3. Show the results
 
-After every chat run that produces `screen_created` or `screen_updated` operations, **take screenshots and show them to the user** using `POST /api/v1/screenshots`. The step is done only when the user has seen a screenshot of every screen the run created or updated; never complete a run silently.
+After every chat run that produces `screen_created` or `screen_updated` operations, **take screenshots and show them to the user** using `POST /api/v1/screenshots`. The step is done once the user has seen a **user shot** of every screen the run created or updated, and each run ends with the user having seen what it changed.
 
 - **New screens**: one screenshot per screen + one combined screenshot of all screens in the project.
 - **Updated screens**: one screenshot per affected screen.
 
-Use `background: "transparent"` unless the user explicitly requests a specific background color.
-
 Save screenshots in the project directory (not a temporary folder) so the user can easily view them.
 
-**Showing vs reviewing**: the defaults capture only the viewport, which is the right framing for the user — screens look like phone screens. They are the wrong framing for judging your own work, because everything below the fold is cropped away. When you're reviewing what a run produced, re-shoot the screen with `fullHeight: true` (one screen per request) to see the whole scrollable page.
+**Review your own work with a review shot.** The user shot's phone-shaped framing is the point when you're showing a screen to the user, and the wrong framing for judging it: everything below the fold is cropped away. Re-shoot with `fullHeight: true`, one screen per request, when you're checking what a run actually produced.
 
-Screenshot requests are independent, so issue them in parallel — the user-facing shot and your `fullHeight` review shot go out together, as do the shots for different screens. "One screen per request" governs what goes into each image, not how fast you send them; it is not a reason to wait for one response before starting the next. Back off only if you actually get a `429`.
+Screenshot requests are independent, so issue them in parallel — the user shot and the review shot go out together, as do the shots for different screens. "One screen per request" governs what goes into each image, not how fast you send them. Back off only if you actually get a `429`.
 
-**Never call a screen incomplete from a viewport screenshot.** Content that looks missing is almost always just below the fold. Before telling the user something is absent, or sending a follow-up message asking Sleek to add it, confirm it against the whole screen: a `fullHeight: true` screenshot, or the component HTML from `GET /api/v1/projects/:id/components/:componentId`, which is the ground truth for what's on the screen. The screenshot is the default and answers most review questions on its own — don't go to the code to double-check something it already shows. Reach for the code only when you're about to claim something is missing: a render can omit what's really there (past the height cap, in a collapsed section, on a later carousel slide), so a negative conclusion is the one worth a second source. Note the reverse too — an element present in the HTML may still not be visible to the user.
+**Call a screen incomplete only from a review shot.** Content that looks missing in a user shot is almost always just below the fold. Before telling the user something is absent, or sending a follow-up message asking Sleek to add it, confirm it against the whole screen: a review shot, or the component HTML from `GET /api/v1/projects/:id/components/:componentId`, which is the ground truth for what's on the screen. The screenshot answers most review questions on its own; reach for the code when you're about to claim something is missing, because a render can omit what's really there (past the height cap, in a collapsed section, on a later carousel slide), so a negative conclusion is the one worth a second source. Note the reverse too — an element present in the HTML may still not be visible to the user.
+
+---
+
+When the user asks for these screens as code, read [implementing.md](implementing.md) before the first line. The HTML is a mockup, not a page, and its conversions to a native framework fail **silently** — an app built without that file compiles, runs, and is wrong.

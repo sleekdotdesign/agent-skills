@@ -2,6 +2,8 @@
 
 Full contract for every row in the quick-reference table in [SKILL.md](SKILL.md).
 
+Every list endpoint accepts `limit` (1–100, default 50) and `offset` (≥0), and answers with `pagination.total` so you can page through everything.
+
 ## Projects
 
 ### List projects
@@ -17,7 +19,7 @@ Response `200`:
 {
   "data": [
     {
-      "id": "proj_abc",
+      "id": "Nq4bZp8wLcT",
       "name": "My App",
       "slug": "my-app",
       "createdAt": "2026-01-01T00:00:00Z",
@@ -38,7 +40,9 @@ Content-Type: application/json
 { "name": "My New App" }
 ```
 
-Response `201`: same shape as a single project.
+Response `201`: `{ "data": ... }` with a single project.
+
+A plan-capped account gets `403 FORBIDDEN` at `projects_limit` here, and that body carries no `data.url`.
 
 ### Get / Delete project
 
@@ -66,12 +70,12 @@ Response `200`:
 {
   "data": [
     {
-      "id": "cmp_xyz",
+      "id": "V1StGXR8Z5j",
       "name": "Hero Section",
       "activeVersion": 3,
       "versions": [
         {
-          "id": "ver_001",
+          "id": "qkP2mN7bXsT",
           "version": 1,
           "code": "<!DOCTYPE html>...</html>",
           "createdAt": "..."
@@ -85,9 +89,9 @@ Response `200`:
 }
 ```
 
-### Get component
+`activeVersion` is nullable, and may name a `version` no entry carries; both cases resolve to the highest `version` (see [Which version to use](implementing.md#which-version-to-use)).
 
-Fetches a single component by ID. Use this when you need the code for a specific screen (e.g., after a chat run returns a `componentId` in its operations).
+### Get component
 
 ```http
 GET /api/v1/projects/:projectId/components/:componentId
@@ -113,7 +117,7 @@ Response `200`:
 {
   "data": [
     {
-      "id": "proj_ref1",
+      "id": "3fTkYw6RmQv",
       "name": "Ember Fitness",
       "previewImageUrls": ["https://.../screenshot.png"]
     }
@@ -128,8 +132,6 @@ To use one, pass its `id` as `referenceId` on [Send Message](#chat-send-message)
 
 ## Chat: Send Message
 
-This is the core action: describe what you want in `message.text` and the AI creates or modifies screens.
-
 ```http
 POST /api/v1/projects/:projectId/chat/messages?wait=false
 Authorization: Bearer $SLEEK_API_KEY
@@ -140,8 +142,8 @@ idempotency-key: <optional, max 255 chars>
   "message": { "text": "Add a pricing section with three tiers" },
   "source": "claude-code",
   "imageUrls": ["https://example.com/ref.png"],
-  "target": { "screenId": "scr_abc" },
-  "referenceId": "proj_ref1"
+  "target": { "screenId": "7hSvA2kLpEr" },
+  "referenceId": "3fTkYw6RmQv"
 }
 ```
 
@@ -149,7 +151,7 @@ idempotency-key: <optional, max 255 chars>
 | ------------------------ | -------- | ---------------------------------------------------------------------------------------- |
 | `message.text`           | Yes      | 1+ chars, trimmed                                                                        |
 | `source`                 | Treat as required | Slug of the tool sending the request (see [step 2 of Designing](designing.md#2-send-a-chat-message)) |
-| `imageUrls`              | No       | HTTPS URLs only; included as visual context                                              |
+| `imageUrls`              | No       | HTTPS URLs only; included as visual context. Sleek's servers fetch these URLs, so pass ones you're willing to have Sleek read |
 | `target.screenId`        | No       | Edit a specific screen using its `screenId` (not `componentId`); omit to let AI decide   |
 | `referenceId`            | No       | Seed the design style from a reference (see [References](#references)); invalid id → `400` |
 | `?wait=true/false`       | No       | Sync wait mode (default: false)                                                          |
@@ -162,9 +164,9 @@ Status `202 Accepted`. `result` and `error` are absent until the run reaches a t
 ```json
 {
   "data": {
-    "runId": "run_111",
+    "runId": "kR9dLm2XvBc",
     "status": "queued",
-    "statusUrl": "/api/v1/projects/proj_abc/chat/runs/run_111"
+    "statusUrl": "/api/v1/projects/Nq4bZp8wLcT/chat/runs/kR9dLm2XvBc"
   }
 }
 ```
@@ -176,7 +178,7 @@ Blocks up to **300 seconds**. Returns `200` when completed, `202` if timed out.
 ```json
 {
   "data": {
-    "runId": "run_111",
+    "runId": "kR9dLm2XvBc",
     "status": "completed",
     "statusUrl": "...",
     "result": {
@@ -184,14 +186,14 @@ Blocks up to **300 seconds**. Returns `200` when completed, `202` if timed out.
       "operations": [
         {
           "type": "screen_created",
-          "screenId": "scr_xyz",
+          "screenId": "wG5xTn1PjHf",
           "screenName": "Pricing",
-          "componentId": "cmp_xyz"
+          "componentId": "V1StGXR8Z5j"
         },
         {
           "type": "screen_updated",
-          "screenId": "scr_abc",
-          "componentId": "cmp_abc"
+          "screenId": "7hSvA2kLpEr",
+          "componentId": "8rJvL4wYhKd"
         },
         { "type": "theme_updated" }
       ]
@@ -200,29 +202,31 @@ Blocks up to **300 seconds**. Returns `200` when completed, `202` if timed out.
 }
 ```
 
+`screenId` and `componentId` are distinct ids for the same screen: `screenId` addresses it in `target`, `componentId` addresses it in `GET .../components/:componentId` and in `componentIds` on a screenshot.
+
 ---
 
 ## Chat: Poll Run Status
-
-Use this after async send to check progress.
 
 ```http
 GET /api/v1/projects/:projectId/chat/runs/:runId
 Authorization: Bearer $SLEEK_API_KEY
 ```
 
-The response has the same `data` shape as send message: `result` is present when `completed`, `error` when `failed`:
+The response has the same `data` shape as send message: `result` when the run applied operations, `error` when `failed`.
 
 ```json
 {
   "data": {
-    "runId": "run_111",
+    "runId": "kR9dLm2XvBc",
     "status": "failed",
     "statusUrl": "...",
     "error": { "code": "execution_failed", "message": "..." }
   }
 }
 ```
+
+A `failed` run can carry **both** `error` and `result`: the server records the operations that were already applied before the failure. Read `result` on either terminal status.
 
 **Run status lifecycle**: `queued` → `running` → `completed | failed`
 
@@ -235,7 +239,7 @@ POST /api/v1/projects/:projectId/chat/runs/:runId/cancel
 Authorization: Bearer $SLEEK_API_KEY
 ```
 
-Marks a `queued` or `running` run as `failed` with error code `cancelled` and returns the updated run; already-finished runs are returned unchanged. Use it when the user changes their mind mid-run or a stale run is blocking the project with `409 CONFLICT`.
+Marks a `queued` or `running` run as `failed` with error code `cancelled` and returns the updated run; already-finished runs are returned unchanged.
 
 ---
 
@@ -249,8 +253,8 @@ Authorization: Bearer $SLEEK_API_KEY
 Content-Type: application/json
 
 {
-  "componentIds": ["cmp_xyz", "cmp_abc"],
-  "projectId": "proj_abc",
+  "componentIds": ["V1StGXR8Z5j", "8rJvL4wYhKd"],
+  "projectId": "Nq4bZp8wLcT",
   "format": "png",
   "scale": 2,
   "gap": 40,
@@ -258,6 +262,8 @@ Content-Type: application/json
   "background": "transparent"
 }
 ```
+
+`componentIds` takes `componentId` values, which the `screenId` from a chat operation is not.
 
 | Field                       | Default       | Notes                                                                                                                                      |
 | --------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -272,18 +278,84 @@ Content-Type: application/json
 | `paddingBottom`             | _(optional)_  | Bottom padding; overrides `paddingY` when provided                                                                                         |
 | `paddingLeft`               | _(optional)_  | Left padding; overrides `paddingX` when provided                                                                                           |
 | `background`                | `transparent` | Any CSS color (hex, named, `transparent`)                                                                                                  |
-| `showDots`                  | `false`       | Overlay a subtle dot grid on the background                                                                                                |
-| `fullHeight`                | `false`       | Capture the entire scrollable screen instead of just the viewport (see below)                                                              |
+| `showDots`                  | `false`       | Overlay a dot grid on the background; light dots on dark backgrounds and dark dots on light ones. No effect when `background` is `transparent` |
+| `fullHeight`                | `false`       | Expand each frame to the height of its own content before capturing — this is what makes a review shot                                      |
 | `radius`                    | `48`          | Squircle corner radius per component in pixels (integer ≥ 0); pass `0` for sharp corners                                                   |
 | `componentVersionOverrides` | _(optional)_  | Map of `componentId` → `versions[i].id` to render at a pinned version instead of `activeVersion` (see [Pinned versions](implementing.md#pinned-versions)) |
 | `themeVersionOverrides`     | _(optional)_  | Map of `themeId` → `versions[i].id` to render with a pinned theme version (see [Pinned versions](implementing.md#pinned-versions))                        |
 
-Padding resolves with a cascade: per-side → axis → uniform. For example, `paddingTop` falls back to `paddingY`, which falls back to `padding`. So `{ "padding": 20, "paddingX": 10, "paddingLeft": 5 }` gives top/bottom 20px, right 10px, left 5px.
+Padding resolves per-side → axis → uniform: `paddingTop` falls back to `paddingY`, which falls back to `padding`.
 
-By default a component is captured at frame height, so anything the user would reach by scrolling is cut off. `fullHeight: true` expands each frame to the height of its own content before capturing. Use it when you're reviewing your own work; leave it off for the screenshots you show the user, where the phone-shaped framing is the point.
-
-Frames are capped at **4× the default frame height**, so a screen longer than that is still cut off at the bottom even with `fullHeight: true`. On a very long screen, treat the component HTML as the authority for what's below the cap. Expanded frames make for tall images; prefer one component per request so each screen keeps its detail — and send those requests in parallel rather than one after another.
-
-When `showDots` is `true`, a dot pattern is drawn over the background color. The dots automatically adapt to the background: dark backgrounds get light dots, light backgrounds get dark dots. This has no effect when `background` is `"transparent"`.
+Frames are capped at **4× the default frame height**, so a screen longer than that is still cut off at the bottom even with `fullHeight: true`. On a very long screen, treat the component HTML as the authority for what's below the cap.
 
 Response: raw binary `image/png` or `image/webp` with `Content-Disposition: attachment`.
+
+---
+
+## Share Cards
+
+Renders one shareable image from up to four screens — the social-post framing, distinct from the plain screenshot.
+
+```http
+POST /api/v1/share-cards
+Authorization: Bearer $SLEEK_API_KEY
+Content-Type: application/json
+
+{
+  "componentIds": ["V1StGXR8Z5j", "8rJvL4wYhKd"],
+  "projectId": "Nq4bZp8wLcT",
+  "layout": "stack",
+  "background": "midnight",
+  "title": "Ember Fitness"
+}
+```
+
+| Field                       | Default    | Notes                                                          |
+| --------------------------- | ---------- | -------------------------------------------------------------- |
+| `componentIds`              | _required_ | 1–4 components                                                 |
+| `projectId`                 | _required_ | Project the components belong to                               |
+| `layout`                    | `stack`    | `stack` or `row`                                               |
+| `background`                | `midnight` | `midnight`, `ember`, `paper`, `violet`, `ocean`                |
+| `title`                     | _(optional)_ | Trimmed, max 80 chars                                        |
+| `componentVersionOverrides` | _(optional)_ | Same pinning semantics as screenshots                        |
+| `themeVersionOverrides`     | _(optional)_ | Same pinning semantics as screenshots                        |
+
+Response: raw binary `image/png`. Share cards and screenshots share one render budget — see the `429` row in [SKILL.md](SKILL.md#error-shapes).
+
+---
+
+## Device: Start
+
+```http
+POST /api/v1/device/start
+Content-Type: application/json
+
+{ "source": "claude-code" }
+```
+
+No auth. `source` is optional (1–64 chars) and drives the `<source> wants to connect` copy the user sees on the approval page.
+
+Response `201`:
+
+```json
+{
+  "data": {
+    "deviceCode": "...",
+    "userCode": "ABCD-1234",
+    "verificationUrl": "https://sleek.design/...",
+    "expiresIn": 900,
+    "interval": 5
+  }
+}
+```
+
+## Device: Poll
+
+```http
+POST /api/v1/device/poll
+Content-Type: application/json
+
+{ "deviceCode": "..." }
+```
+
+No auth. `data.status` is one of `pending`, `expired`, or `approved` — and only the `approved` variant carries `key`, `keyId` and `name`. It is handed over exactly once; a poll on an already-claimed code answers `404 NOT_FOUND` / `Unknown device code`, which is indistinguishable from a code that never existed. The full flow is in [SKILL.md](SKILL.md#prerequisites-api-key).
