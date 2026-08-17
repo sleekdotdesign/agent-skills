@@ -2,9 +2,9 @@
 
 React Native's built-in styling. Reached from [React Native (Expo)](../implementing.md#react-native-expo) when the repo has no styling library.
 
-## Token module
+## Colors
 
-Export the theme from one module — colors, radii, spacing steps, font families — and import it in every component, so a token change stays a one-file edit and no component carries a literal color. Convert the `oklch(...)` values from the document's `:root` block to hex or `rgb()` here, once.
+React Native's color parser reads hex, `rgb()` and named colors and carries no `oklch` matcher, so a raw `oklch(...)` token resolves to nothing. Convert each one from the document's `:root` block to hex or `rgb()` once, in the token module, and every consumer stays correct.
 
 ## Units
 

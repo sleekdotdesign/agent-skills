@@ -1,6 +1,6 @@
 # Styling: Uniwind
 
-Uniwind consumes Tailwind v4, which is what Sleek emits, so the mockup's classes carry over unchanged. Reached from [React Native (Expo)](../implementing.md#react-native-expo) when `uniwind` is in `package.json`.
+Uniwind consumes Tailwind v4, so the mockup's classes carry over unchanged. Reached from [React Native (Expo)](../implementing.md#react-native-expo) when `uniwind` is in `package.json`.
 
 ## Theme
 
@@ -24,7 +24,7 @@ Uniwind resolves theme colors from `global.css`. Read the project's existing `gl
 }
 ```
 
-Port the project's `:root` tokens into `--color-*` names in whatever shape that file actually uses, with the `oklch(...)` values converted to hex. Uniwind publishes an agent-readable digest at `https://docs.uniwind.dev/llms.txt`; read it for the current theme structure and for any setup detail beyond this file.
+Port the project's `:root` tokens into `--color-*` names in whatever shape that file actually uses. Uniwind documents first-class OKLCH support, so the `oklch(...)` values go across as they are. Uniwind publishes an agent-readable digest at `https://docs.uniwind.dev/llms.txt`; read it for the current theme structure and for any setup detail beyond this file.
 
 ## Third-party components
 
