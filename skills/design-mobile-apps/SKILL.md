@@ -88,7 +88,7 @@ Use a style direction or a `referenceId`, not both — a reference already carri
 
 **Polling**: chat messages are async by default: you get a `runId` and poll `GET /api/v1/projects/:id/chat/runs/:runId`. Start at 2s interval, back off to 5s after 10s, give up after 5 minutes. Exit on `completed` or `failed`; if you can't read the status, stop and report it rather than counting it as "not done yet". You can also use `?wait=true` for a blocking call (up to 300s; falls back to polling if it times out with `202`).
 
-**Editing a specific screen**: use `target.screenId` to direct changes to the right screen (uses the screen ID from operations, not the component ID).
+**Editing a specific screen**: use `target.screenId` to direct changes to the right screen. The `screenId` comes from the run's `result.operations` or from the `screenId` field on each component returned by `GET /api/v1/projects/:id/components`; it is not the component ID.
 
 **One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. If the user changed their mind or a stale run is blocking the project, cancel it (see [Cancel Run](#chat-cancel-run)). Messages to different projects can run in parallel; use async polling (not `?wait=true`) when running multiple projects concurrently.
 
@@ -286,6 +286,7 @@ Response `200`:
   "data": [
     {
       "id": "cmp_xyz",
+      "screenId": "scr_xyz",
       "name": "Hero Section",
       "activeVersion": 3,
       "versions": [
@@ -369,7 +370,7 @@ idempotency-key: <optional, max 255 chars>
 | `message.text`           | Yes      | 1+ chars, trimmed                                                                        |
 | `source`                 | Treat as required | Slug of the tool sending the request (see [step 2 of Designing](#2-send-a-chat-message)) |
 | `imageUrls`              | No       | HTTPS URLs only; included as visual context                                              |
-| `target.screenId`        | No       | Edit a specific screen using its `screenId` (not `componentId`); omit to let AI decide   |
+| `target.screenId`        | No       | Edit a specific screen using its `screenId` (from run operations or the components list; not `componentId`); omit to let AI decide |
 | `referenceId`            | No       | Seed the design style from a reference (see [References](#references)); invalid id → `400` |
 | `?wait=true/false`       | No       | Sync wait mode (default: false)                                                          |
 | `idempotency-key` header | No       | Replay-safe re-sends                                                                     |
@@ -559,5 +560,5 @@ GET /api/v1/projects?limit=10&offset=20
 | Piping a JSON response through `echo` to parse it                       | zsh expands the `\n` in `assistantText` and breaks the JSON; parse from a file instead               |
 | Treating an unreadable run status as "not done yet"                     | The loop then spins to its cap long after the run finished; stop and report instead                  |
 | Calling a screen incomplete based on a viewport screenshot              | The content is usually below the fold; re-shoot with `fullHeight: true` or check the component HTML before reporting anything missing |
-| Using `screenId` as `componentIds` in screenshots                       | `screenId` and `componentId` are different; always use `componentId` from operations for screenshots |
+| Using `screenId` as `componentIds` in screenshots                       | `screenId` and `componentId` are different: every screen has both (run operations and the components list return the pair). the chat message `target.screenId` takes `screenId`; screenshots and component reads take `componentId` |
 | Confusing `versions[i].version` (number) with `versions[i].id` (string) | When resolving pinned versions, match by `id` (e.g. `ver_001`); `version` is the numeric index       |
