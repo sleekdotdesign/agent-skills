@@ -8,7 +8,7 @@ React Native's color parser reads hex, `rgb()` and named colors and carries no `
 
 ## Units
 
-React Native styles are unitless numbers in density-independent pixels, so Tailwind converts numerically rather than by feel. The scale is `0.25rem` per step:
+React Native styles use unitless numbers in density-independent pixels. Resolve Tailwind's `0.25rem` spacing steps against the HTML's root font size; the examples below assume the default 16px root:
 
 | Class          | Style                             |
 | -------------- | --------------------------------- |
@@ -19,7 +19,7 @@ React Native styles are unitless numbers in density-independent pixels, so Tailw
 | `rounded-xl`   | `borderRadius:` the resolved `--radius-xl` number |
 | `w-1/2`        | `width: '50%'` (percentages are strings) |
 
-`rem`, `em`, `vh` and `vw` have no equivalent — a size that depends on the screen reads from `useWindowDimensions()`.
+Resolve `rem` and `em` against their source font sizes. Use `useWindowDimensions()` for viewport-relative sizes, then pass numeric native values.
 
 ## Composition
 

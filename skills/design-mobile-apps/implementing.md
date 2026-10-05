@@ -107,13 +107,13 @@ Colors can be hex, `rgb()` or `oklch(...)`. Preserve supported values and conver
 
 Sleek renders web HTML with Tailwind v4 classes (the document loads `@tailwindcss/browser@4` — read the `<head>` to confirm). Several web defaults land differently in React Native, and the failures below are **silent**: the app compiles, runs, and is wrong. Work through them before the first component.
 
-**Styling.** Match what the repo already does. Detect it, then read that file:
+**Styling.** Use the user's requested styling system, otherwise preserve the system used by the feature being edited. Dependencies and source files provide evidence; read the corresponding reference:
 
 | Evidence                                      | Read                                           |
 | --------------------------------------------- | ---------------------------------------------- |
-| `nativewind` in `package.json`                | [styling/nativewind.md](styling/nativewind.md)  |
-| `uniwind` in `package.json`                   | [styling/uniwind.md](styling/uniwind.md)        |
-| neither, or existing `StyleSheet.create` files | [styling/stylesheet.md](styling/stylesheet.md) |
+| Nativewind classes in the feature, or Nativewind requested | [styling/nativewind.md](styling/nativewind.md) |
+| Uniwind classes in the feature, or Uniwind requested | [styling/uniwind.md](styling/uniwind.md) |
+| `StyleSheet.create` in the feature, or a new app without a library preference | [styling/stylesheet.md](styling/stylesheet.md) |
 
 Each file carries its own token conversion, class syntax and configuration. For a repo with no styling library and a user with no preference, use StyleSheet: it needs no build configuration, so it cannot be misconfigured into silently doing nothing.
 
@@ -147,14 +147,14 @@ Legacy fallback, for a project on an older React Native or still on the old arch
 
 ### Gradients and hover
 
-- **Gradients.** `bg-linear-*` and `linear-gradient(...)` have no style equivalent; render them with `expo-linear-gradient` as a component behind the content.
+- **Gradients.** Use `expo-linear-gradient` for linear gradients, or preserve an existing native gradient implementation supported by the installed React Native version. Check native API support before porting CSS gradient strings directly.
 - **Hover.** `hover:` variants compile but never fire on a touch device. Carry the intent to the press state instead: `Pressable`'s `({ pressed })` style callback, or the `active:` variant.
 
 ### Infer the route tree first
 
 Do this before implementing any screen. Each Sleek screen is a standalone document that draws the entire chrome, so the same tab bar is baked into every screen that shows one. Read the screen set as one app, derive the navigator from it, and let each screen render only its own content — the navigator owns the chrome and draws it once.
 
-Use **expo-router**, importing each navigator from the path that actually exports it:
+Preserve the app's existing navigation system. For a new Expo app with no navigator, use **expo-router**; in that branch, import each navigator from the path that actually exports it:
 
 - `Stack` from `expo-router`.
 - `Tabs` from `expo-router/js-tabs` on Router 57+. Older Router versions, including Router 6 on SDK 54, export `Tabs` from `expo-router` and may not have `js-tabs`. Check the installed package's exports before choosing the import; preserve the project's SDK unless an upgrade is part of the task.
@@ -164,7 +164,7 @@ Four signals carry the structure:
 
 1. **The same bottom bar means Tab siblings** — those screens sit under one `_layout` sharing a single tab bar.
 2. **A back arrow in the header means a Stack child** of wherever the screen is reached from.
-3. **An overlay, sheet or dialog means a modal route** — `presentation: 'modal'`, or `@gorhom/bottom-sheet` for a draggable sheet.
+3. **An overlay, sheet or dialog needs a presentation choice.** Use a modal route when it belongs in navigation history, or a screen-local component when it belongs to the current interaction. Match the existing app's behavior.
 4. **A hamburger menu means a Drawer**, with its destinations as Drawer screens.
 
 Worked example: Home, Search and Profile all show the same bottom bar → tab siblings. ProductDetail shows a back arrow → Stack child inside the Home tab. Settings is reached from a menu → Stack or Drawer screen.
@@ -173,7 +173,9 @@ Two lookalikes are components rather than routes: horizontal tabs inside the con
 
 Tab bar and header styling go through `screenOptions` for as long as the design stays inside what those options express; a custom shape, a floating or pill-shaped bar, a raised center button, a custom active indicator or a header carrying a logo and search field is cheaper as a component passed to the `tabBar` prop or `options.header`. Either way, match the icons, labels and active/inactive states from the design.
 
-A mockup can't show a keyboard, so it never does: every screen with a `TextInput` still needs `KeyboardAvoidingView` or an equivalent.
+### Keyboard
+
+Every screen with a `TextInput` needs keyboard avoidance, such as `KeyboardAvoidingView`. Verify the focused fields, errors and form actions remain reachable with the native keyboard open.
 
 ### Build the feature, not the mockup
 
@@ -181,13 +183,17 @@ A mockup shipped verbatim is a convincing dead app. For each screen, name the fe
 
 A mockup also shows one moment — full, happy, populated. Decide separately what each screen does with zero items, with one, while loading, and on error.
 
-When editing a persisted record, resolve it from the route parameters and initialize fields after its data loads; test reopening and reloading the route so saved fields do not become blank defaults. Preserve small icons visually while giving their controls usable touch areas. If the app also targets web, verify that inactive routes and covered modal content cannot receive keyboard focus; `aria-hidden` alone does not prevent it.
+When editing a persisted record, resolve it from the route parameters and initialize fields after its data loads; test reopening and reloading the route so saved fields do not become blank defaults.
+
+Preserve small icons visually while giving their controls usable touch areas.
+
+If the app also targets web, verify that inactive routes and covered modal content cannot receive keyboard focus; `aria-hidden` alone does not prevent it.
 
 ---
 
 ## Definition of done
 
-For a native build. Every box below is a **silent** failure: the app compiles and runs with the box open. Check each line against every screen in the project; the work is done when no screen leaves a box open.
+For a native build, apply each relevant check to every screen in the requested implementation scope and any shared navigation it changes. Completion requires those checks to pass; report unavailable platform checks as unverified dependencies.
 
 - [ ] The screen has a route in the navigator, and its own file draws none of the chrome the navigator owns.
 - [ ] Every `flex` in the source HTML resolved to an explicit direction, and the built screen's axis matches its screenshot.
@@ -197,11 +203,11 @@ For a native build. Every box below is a **silent** failure: the app compiles an
 - [ ] Icons are the exact Iconify names from the HTML, set and name.
 - [ ] Fonts match the selected theme's families, bundled at the weights the body's `font-*` classes use.
 - [ ] Shadows render on Android as well as iOS: `boxShadow`, or `elevation` alongside the `shadow*` props on a legacy-architecture project.
-- [ ] Gradients render through `expo-linear-gradient` — grepping the screens for `bg-linear`, `bg-gradient` and `linear-gradient(` returns nothing.
+- [ ] Gradients visibly match the design on native through `expo-linear-gradient` or a supported native gradient implementation.
 - [ ] Every `hover:` in the source HTML landed on a press state: `Pressable`'s `({ pressed })` callback or `active:`.
 - [ ] Every screen holding a `TextInput` uses keyboard avoidance. With the native keyboard open, focus each field and trigger validation: errors and Save/Cancel remain visible or reachable by scrolling. A `KeyboardAvoidingView` in the source alone does not prove this.
 - [ ] Grep each screen for display literals — quoted strings and numbers that reach the user — and account for every hit: it reads from state, props, context or the API, or it is genuinely static copy.
 - [ ] Exercise applicable populated, empty, single-item, loading and error states. On native, check that filtering to one item does not unexpectedly expand scroll containers or hide the remaining item.
-- [ ] The styling library is proven configured: one throwaway class renders visibly before the first screen is built.
+- [ ] When using Nativewind or Uniwind, one throwaway class renders visibly before building screens, including a third-party wrapper if the implementation needs one.
 - [ ] The screen has been compared against its own **review shot**, not the user shot.
 - [ ] Record which platforms actually ran the app and which only bundled/exported. Verify styling and interactions on an available native target; a web preview or native export alone does not prove native layout, insets or keyboard behavior.

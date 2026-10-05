@@ -28,11 +28,11 @@ Use a style direction or a `referenceId`, not both — a reference already carri
 
 Save the request body, idempotency key, `runId` and `statusUrl` per project as soon as they are available. A `409` carries no active-run pointer and the API has no run-list endpoint. If the blocking run's ID is unknown, report the conflict and request its run ID or editor context; don't invent a polling URL or cancel an unidentified run.
 
-A `failed` run can still carry a `result`: Sleek records the operations it applied before the failure. Read `result` on both terminal statuses, and screenshot and implement whatever screens were created.
+A `failed` run can still carry a `result`: Sleek records the operations it applied before the failure. Read `result` on both terminal statuses and show the created or updated screens through step 3. Report the failure alongside the applied changes. Continue to implementation only when the user requested code.
 
 **Editing a specific screen**: use `target.screenId` to direct changes to the right screen. Read it from the run's `result.operations` or the component list's `screenId` field, which can be null. It is distinct from the component ID; do not substitute that ID when no screen ID is returned.
 
-**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. If the user changed their mind or a stale run is blocking the project, cancel it (see [Cancel Run](endpoints.md#chat-cancel-run)). Messages to different projects can run in parallel; use async polling (not `?wait=true`) when running multiple projects concurrently.
+**One run at a time**: keep one active run per project. Follow a known run to a terminal status before sending the next message; use the missing-context path above when its ID is unknown. If the user changes direction, cancel the identified run (see [Cancel Run](endpoints.md#chat-cancel-run)). Messages to different projects can run in parallel; use async polling when running them concurrently.
 
 **Safe retries**: choose an `idempotency-key` header (≤255 chars) before sending a message. If the response is lost, resend the same payload with the same key to recover the original run. Reusing a key also returns its terminal failure: after `request_message_persist_failed`, or after the user resolves `out_of_credits`, a new logical attempt needs a new key. Read the existing run first; don't create a new attempt while its outcome is unknown.
 
@@ -49,8 +49,8 @@ Save screenshots in the project directory (not a temporary folder) so the user c
 
 Screenshot requests are independent, so issue them in parallel — the user shot and the review shot go out together, as do the shots for different screens. "One screen per request" governs what goes into each image, not how fast you send them. Back off only if you actually get a `429`.
 
-**Call a screen incomplete only from a review shot.** Content that looks missing in a user shot is almost always just below the fold. Before telling the user something is absent, or sending a follow-up message asking Sleek to add it, confirm it against the whole screen: a review shot, or the component HTML from `GET /api/v1/projects/:id/components/:componentId`, which is the ground truth for what's on the screen. The screenshot answers most review questions on its own; reach for the code when you're about to claim something is missing, because a render can omit what's really there (past the height cap, in a collapsed section, on a later carousel slide), so a negative conclusion is the one worth a second source. Note the reverse too — an element present in the HTML may still not be visible to the user.
+**Confirm missing content.** Content that looks missing in a user shot can be below the fold. Review the full-height shot first. Before reporting something absent or asking Sleek to add it, check the component HTML from `GET /api/v1/projects/:id/components/:componentId` too: rendering can omit content past its height cap or inside collapsed sections and carousel slides. An element present in HTML can still be invisible to the user.
 
 ---
 
-When the user asks for these screens as code, read [implementing.md](implementing.md) before the first line. The HTML is a mockup, not a page, and its conversions to a native framework fail **silently** — an app built without that file compiles, runs, and is wrong.
+When the user asks for these screens as code, read [implementing.md](implementing.md) before writing the implementation.
