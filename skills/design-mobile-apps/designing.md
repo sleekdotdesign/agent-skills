@@ -24,15 +24,17 @@ Use a style direction or a `referenceId`, not both — a reference already carri
 
 **Watch it live**: runs render in the Sleek editor in real time. After sending the first message to a project, tell the user they can watch their screens being designed live in Sleek, and share the editor link: `https://sleek.design/project/:projectId`. Open a browser yourself only when the user asks you to.
 
-**Polling**: chat messages are async by default: you get a `runId` and poll `GET /api/v1/projects/:id/chat/runs/:runId`. Start at a 2s interval, back off to 5s after 10s, and keep polling for **10 minutes**. That is the server's stale-run threshold: a run younger than 10 minutes still holds the project's single-run lock, so a message sent after giving up at minute 5 comes back `409 CONFLICT`. Exit on `completed` or `failed`; if you can't read the status, stop and report that rather than counting it as "not done yet". You can also use `?wait=true` for a blocking call (up to 300s; falls back to polling if it times out with `202`).
+**Polling**: chat messages are async by default: you get a `runId` and poll `GET /api/v1/projects/:id/chat/runs/:runId`. Start at a 2s interval, back off to 5s after 10s, and poll for up to **10 minutes**. Exit on `completed` or `failed`; if you can't read the status, stop and report that rather than counting it as "not done yet". After ten minutes, report the last known status and run ID. Elapsed time does not prove completion or release the project's run lock; don't start another attempt while its outcome is unknown. You can also use `?wait=true` for a blocking call (up to 300s; falls back to polling if it times out with `202`).
+
+Save the request body, idempotency key, `runId` and `statusUrl` per project as soon as they are available. A `409` carries no active-run pointer and the API has no run-list endpoint. If the blocking run's ID is unknown, report the conflict and request its run ID or editor context; don't invent a polling URL or cancel an unidentified run.
 
 A `failed` run can still carry a `result`: Sleek records the operations it applied before the failure. Read `result` on both terminal statuses, and screenshot and implement whatever screens were created.
 
-**Editing a specific screen**: use `target.screenId` to direct changes to the right screen (uses the screen ID from operations, not the component ID).
+**Editing a specific screen**: use `target.screenId` to direct changes to the right screen. Read it from the run's `result.operations` or the component list's `screenId` field, which can be null. It is distinct from the component ID; do not substitute that ID when no screen ID is returned.
 
 **One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. If the user changed their mind or a stale run is blocking the project, cancel it (see [Cancel Run](endpoints.md#chat-cancel-run)). Messages to different projects can run in parallel; use async polling (not `?wait=true`) when running multiple projects concurrently.
 
-**Safe retries**: add an `idempotency-key` header (≤255 chars) to replay-safe re-sends. The server returns the existing run rather than creating a duplicate.
+**Safe retries**: choose an `idempotency-key` header (≤255 chars) before sending a message. If the response is lost, resend the same payload with the same key to recover the original run. Reusing a key also returns its terminal failure: after `request_message_persist_failed`, or after the user resolves `out_of_credits`, a new logical attempt needs a new key. Read the existing run first; don't create a new attempt while its outcome is unknown.
 
 ## 3. Show the results
 

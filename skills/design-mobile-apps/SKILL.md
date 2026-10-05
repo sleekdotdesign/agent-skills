@@ -17,7 +17,7 @@ metadata:
 **Auth**: `Authorization: Bearer $SLEEK_API_KEY` on every `/api/v1/*` request
 **Content-Type**: `application/json` (requests and responses)
 **CORS**: Enabled on all `/api/v1/*` endpoints
-**Envelope**: every JSON response wraps its payload in `data` — one object for a single resource, an array plus a sibling `pagination` for a list. Read through `data` on every endpoint, including `/device/poll`.
+**Envelope**: every successful JSON response wraps its payload in `data` — one object for a single resource, an array plus a sibling `pagination` for a list. Read through `data` on every endpoint, including `/device/poll`. Check HTTP status first: errors use top-level `code`, `status` and `message`, with optional `data.url`; screenshots and share cards return image bytes on success.
 **Ids**: opaque 11-character tokens like `V1StGXR8Z5j`, with no type prefix. Nothing about an id says whether it names a project, screen, component, version or theme, so track each one by the response field it arrived in.
 **Parsing responses**: write the body to a file (`curl -o run.json`) and parse the file. Piping JSON through `echo` corrupts it: zsh expands the escaped `\n` inside string values into real newlines, which makes the body invalid JSON.
 **API docs**: OpenAPI spec at `https://sleek.design/api/v1/spec.json`; browsable docs at `https://sleek.design/api/v1/docs`. Fetch the spec for any contract detail not covered here.
@@ -130,4 +130,4 @@ Chat run-level errors (inside `data.error`):
 | `cancelled`                       | Run cancelled via the cancel endpoint                      |
 | `request_message_persist_failed`  | The run failed before reaching the AI; the message was never stored, so re-send it |
 
-An `out_of_credits` error includes `error.url`, the page where the user can top up credits. Relay it and wait for them to top up before re-sending the run.
+An `out_of_credits` error includes `error.url`, the page where the user can top up credits. Relay it and wait for them to top up before starting a new attempt with a new idempotency key. The original key keeps returning the original failed run. The same distinction applies to `request_message_persist_failed`; see [Safe retries](designing.md#2-send-a-chat-message).

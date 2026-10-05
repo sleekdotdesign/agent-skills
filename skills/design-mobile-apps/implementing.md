@@ -2,13 +2,13 @@
 
 When the user wants the designs built as code rather than previewed, **always fetch the component HTML code** and build from it; the screenshots confirm the result.
 
-Use `GET /api/v1/projects/:id/components/:componentId` to fetch each screen's code. The `componentId` comes from the chat run's `result.operations`.
+Use `GET /api/v1/projects/:id/components/:componentId` to fetch each screen's code. For a new run, get `componentId` from `result.operations`. For an existing project, list its components, paging through `pagination.total`; each item supplies `id` for HTML/screenshots and a nullable `screenId` for targeted edits. Use a returned screen ID when present; don't substitute the component ID when it is null.
 
 Component code can be large. Fetch it with a shell command that writes the response body straight to disk, so the code goes to a file without passing through your text output.
 
 ## Which version to use
 
-Each component carries a `versions[]` array and an `activeVersion`, a **nullable** number. **By default, use the entry where `versions[i].version === activeVersion`**: that's the code currently shown in Sleek. When `activeVersion` is `null`, or when no entry matches it, the server resolves the entry with the **highest `version`** — resolve it the same way.
+Each component carries a `versions[]` array and an `activeVersion`, a **nullable** number. **By default, use the entry where `versions[i].version === activeVersion`**. If `activeVersion` is `null` or has no matching entry, select the **highest numeric `version`** for implementation. Pass that selected entry's `id` in `componentVersionOverrides` for its screenshots too: the renderer can otherwise produce an empty frame. If there are no versions, stop and report that there is no code to implement.
 
 If the user's prompt pins specific versions, follow those instead (see [Pinned versions](#pinned-versions) below).
 
@@ -25,11 +25,13 @@ The user's prompt may include a pin block telling you to implement specific hist
 
 When you see a pin block, implement those exact versions instead of `activeVersion`. Components not named in the pin block continue to use their active version. Theme ids surface only inside pin blocks; this skill exposes no separate endpoint to enumerate them.
 
-**On a pinned checkpoint the HTML's theme may not be the pinned theme.** Sleek generates every version's HTML against the project's *currently active* theme, while the screenshot renderer honours `themeVersionOverrides`. So the two can disagree on a checkpoint, and the screenshot is the authority for color, radius and font.
+**Historical themes are a separate limit.** Component HTML inlines the active project theme, even for historical component versions. Screenshot `themeVersionOverrides` do not change that HTML, and the public API has no theme-version read or HTML theme override. Preserve supplied theme pins for preview and use the screenshot as a visual reference, but do not claim an exact implementation from active-theme HTML. Exact implementation of a pinned historical theme needs its supplied tokens and fonts or an API export that resolves that theme; report this dependency rather than silently substituting the active theme.
 
 ### Fetching the right code
 
 For each pinned component, find the entry in `versions[]` whose `versions[i].id` matches the given version id and use its `code`. Match on `id`, the string; `version` is the numeric index, and a pinned component takes its code from that matched entry alone.
+
+If the requested version is absent, report the unavailable pin and stop that export. Do not substitute another version. The screenshot API silently falls back to active versions for invalid overrides, so a successful image response alone does not verify a checkpoint.
 
 ### Screenshots of pinned versions
 
@@ -80,9 +82,13 @@ When implementing icons:
 
    Collect all icon names from the HTML, fetch their SVGs, and save them as static assets or string constants in the codebase. For **React Native / Expo**, render them with `react-native-svg`'s `SvgXml` component, which works in Expo Go with no additional native dependencies.
 
+   If the Iconify endpoint is unavailable, obtain the same prefix/name from its official `@iconify-json/<prefix>` data package and embed only the icons used. Preserve the SVG geometry and viewBox; replacing the set changes the design.
+
 ### Fonts
 
-The `<head>` `<link>` tags give you the font **families**. They request each family's entire published weight range (or a 100–900 fallback for a family Sleek doesn't recognise), so the weights in those URLs describe what Google Fonts can serve, not what the design uses. The weights actually used are in the body's `font-*` Tailwind classes. Take the families from the `<link>` tags, read the weights off the classes, and bundle only those.
+For the current theme, the `<head>` `<link>` tags give you the font **families**. For a pinned historical theme, use the supplied theme's families instead. The links request each family's entire published weight range (or a 100–900 fallback for a family Sleek doesn't recognise), so the weights in those URLs describe what Google Fonts can serve, not what the design uses. The weights actually used are in the body's `font-*` Tailwind classes. Read those weights and bundle only the faces used.
+
+Resolve body font classes through the theme's family tokens before bundling. An exported alias such as `--font-font-heading` does not define Tailwind's `font-heading` utility, even when the intended `--font-heading` family is present. Correct malformed aliases when porting and match the family rendered in the Sleek screenshot. If the intended token and screenshot still disagree, record the discrepancy rather than silently choosing one.
 
 ### Design tokens
 
@@ -93,7 +99,7 @@ Two of those values need work on the way across:
 - **`--radius` is a base, not a value.** The document derives `--radius-xs … --radius-4xl` from it with `calc()`; resolve the arithmetic to numbers.
 - **`--shape` is always present**, valued `round` or `squircle` — test the value, not its presence. `squircle` turns on CSS `corner-shape` and multiplies every radius by `--shape-multiplier` where the browser supports it. React Native has neither, so use plain `borderRadius` and match the rounding the screenshot shows.
 
-Colors arrive as `oklch(...)`. Whether they survive the crossing depends on the styling library — the file you read below says so for that branch.
+Colors can be hex, `rgb()` or `oklch(...)`. Preserve supported values and convert unsupported formats once; the file below covers each styling branch.
 
 ---
 
@@ -125,12 +131,12 @@ Every string renders inside `<Text>` — including strings hiding in a `&&` bran
 
 ### Insets
 
-The mockup has no notch, status bar or home indicator: it renders edge to edge inside a fixed frame. On a device, an unguarded screen draws its header under the status bar and its bottom bar under the home indicator or the Android navigation bar — Expo SDK 54 and later make Android edge-to-edge the default, so Android content draws under the system bars just as iOS content does. Inset with **`react-native-safe-area-context`** — React Native core exports a `SafeAreaView` of its own that only insets on iOS, so import from the package — and wrap the app once in its `SafeAreaProvider`.
+The mockup has no notch, status bar or home indicator: it renders edge to edge inside a fixed frame. On a device, an unguarded screen draws its header under the status bar and its bottom bar under the home indicator or the Android navigation bar — Expo SDK 54 and later make Android edge-to-edge the default, so Android content draws under the system bars just as iOS content does. Inset with **`react-native-safe-area-context`** — React Native core exports a `SafeAreaView` of its own that only insets on iOS, so import from the package — and put a `SafeAreaProvider` at the app root. Native modal or route roots can need their own provider when `react-native-screens` creates a separate view hierarchy; check the presented screen's actual insets. See the [provider documentation](https://appandflow.github.io/react-native-safe-area-context/api/safe-area-provider/).
 
 Inset each edge of each screen exactly once:
 
 - A native-stack navigator header insets the **top only**. A screen under one still owns its bottom edge, so unless a tab bar or other navigator chrome covers it, give the screen `edges={['bottom']}` or bottom padding from `useSafeAreaInsets()`.
-- A screen with `headerShown: false`, and every modal screen, insets itself top and bottom: `SafeAreaView` around the screen, or `useSafeAreaInsets()` when you need the numbers — a header you drew yourself, a floating or absolutely positioned bottom bar, a sticky CTA, or content that scrolls under the status bar while its padding respects it.
+- A headerless screen, including a headerless modal, owns its top and bottom insets: `SafeAreaView` around the screen, or `useSafeAreaInsets()` when you need the numbers — a header you drew yourself, a floating or absolutely positioned bottom bar, a sticky CTA, or content that scrolls under the status bar while its padding respects it. On modal routes with navigator chrome, inset only the uncovered edges.
 - `edges` narrows a `SafeAreaView` to the sides that still need guarding, which is how a screen keeps the navigator header and insets the bottom alone.
 
 ### Shadows
@@ -151,7 +157,7 @@ Do this before implementing any screen. Each Sleek screen is a standalone docume
 Use **expo-router**, importing each navigator from the path that actually exports it:
 
 - `Stack` from `expo-router`.
-- `Tabs` from `expo-router/js-tabs`. The root `Tabs` export is deprecated as of `expo-router@57`, and `expo-router/tabs` currently aliases `js-tabs` and appears reserved for native tabs, so name `js-tabs` explicitly.
+- `Tabs` from `expo-router/js-tabs` on Router 57+. Older Router versions, including Router 6 on SDK 54, export `Tabs` from `expo-router` and may not have `js-tabs`. Check the installed package's exports before choosing the import; preserve the project's SDK unless an upgrade is part of the task.
 - `Drawer` from `expo-router/drawer` — the root exports no `Drawer` at all. It also needs `react-native-reanimated`, `react-native-worklets` and `react-native-gesture-handler` (SDK 56+) installed alongside it.
 
 Four signals carry the structure:
@@ -175,6 +181,8 @@ A mockup shipped verbatim is a convincing dead app. For each screen, name the fe
 
 A mockup also shows one moment — full, happy, populated. Decide separately what each screen does with zero items, with one, while loading, and on error.
 
+When editing a persisted record, resolve it from the route parameters and initialize fields after its data loads; test reopening and reloading the route so saved fields do not become blank defaults. Preserve small icons visually while giving their controls usable touch areas. If the app also targets web, verify that inactive routes and covered modal content cannot receive keyboard focus; `aria-hidden` alone does not prevent it.
+
 ---
 
 ## Definition of done
@@ -183,16 +191,17 @@ For a native build. Every box below is a **silent** failure: the app compiles an
 
 - [ ] The screen has a route in the navigator, and its own file draws none of the chrome the navigator owns.
 - [ ] Every `flex` in the source HTML resolved to an explicit direction, and the built screen's axis matches its screenshot.
-- [ ] Grepping the screen file finds no JSX text node or `{expression}` string whose nearest element is anything but `<Text>`, and a development build's console prints no `Text strings must be rendered within a <Text> component.`
-- [ ] Headerless and modal screens inset themselves, every screen's bottom edge is accounted for on Android, `SafeAreaProvider` wraps the root, and nothing is inset twice.
+- [ ] Review JSX text and conditional branches: every rendered string is inside `<Text>`. Exercise populated and empty branches on native and check the development console for `Text strings must be rendered within a <Text> component.`; grep alone cannot prove the parent element.
+- [ ] Headerless screens and modals inset their uncovered edges, every screen's bottom edge is accounted for on Android, the applicable native view hierarchy has a `SafeAreaProvider`, and nothing is inset twice.
 - [ ] Colors, radii and fonts come from the one token module — grepping the screen files for a raw hex or `rgb(` returns nothing.
 - [ ] Icons are the exact Iconify names from the HTML, set and name.
-- [ ] Fonts are the exact families from the `<link>` tags, bundled at the weights the body's `font-*` classes use.
+- [ ] Fonts match the selected theme's families, bundled at the weights the body's `font-*` classes use.
 - [ ] Shadows render on Android as well as iOS: `boxShadow`, or `elevation` alongside the `shadow*` props on a legacy-architecture project.
 - [ ] Gradients render through `expo-linear-gradient` — grepping the screens for `bg-linear`, `bg-gradient` and `linear-gradient(` returns nothing.
 - [ ] Every `hover:` in the source HTML landed on a press state: `Pressable`'s `({ pressed })` callback or `active:`.
-- [ ] Every screen holding a `TextInput` wraps it in `KeyboardAvoidingView` or an equivalent.
+- [ ] Every screen holding a `TextInput` uses keyboard avoidance. With the native keyboard open, focus each field and trigger validation: errors and Save/Cancel remain visible or reachable by scrolling. A `KeyboardAvoidingView` in the source alone does not prove this.
 - [ ] Grep each screen for display literals — quoted strings and numbers that reach the user — and account for every hit: it reads from state, props, context or the API, or it is genuinely static copy.
-- [ ] Each screen has a decided empty, single-item, loading and error state.
+- [ ] Exercise applicable populated, empty, single-item, loading and error states. On native, check that filtering to one item does not unexpectedly expand scroll containers or hide the remaining item.
 - [ ] The styling library is proven configured: one throwaway class renders visibly before the first screen is built.
 - [ ] The screen has been compared against its own **review shot**, not the user shot.
+- [ ] Record which platforms actually ran the app and which only bundled/exported. Verify styling and interactions on an available native target; a web preview or native export alone does not prove native layout, insets or keyboard behavior.

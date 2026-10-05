@@ -71,6 +71,7 @@ Response `200`:
   "data": [
     {
       "id": "V1StGXR8Z5j",
+      "screenId": "7hSvA2kLpEr",
       "name": "Hero Section",
       "activeVersion": 3,
       "versions": [
@@ -89,7 +90,7 @@ Response `200`:
 }
 ```
 
-`activeVersion` is nullable, and may name a `version` no entry carries; both cases resolve to the highest `version` (see [Which version to use](implementing.md#which-version-to-use)).
+`activeVersion` can be null or unmatched. See [Which version to use](implementing.md#which-version-to-use) for code and screenshot selection. `id` is the component ID; nullable `screenId` addresses targeted chat edits.
 
 ### Get component
 
@@ -152,7 +153,7 @@ idempotency-key: <optional, max 255 chars>
 | `message.text`           | Yes      | 1+ chars, trimmed                                                                        |
 | `source`                 | Treat as required | Slug of the tool sending the request (see [step 2 of Designing](designing.md#2-send-a-chat-message)) |
 | `imageUrls`              | No       | HTTPS URLs only; included as visual context. Sleek's servers fetch these URLs, so pass ones you're willing to have Sleek read |
-| `target.screenId`        | No       | Edit a specific screen using its `screenId` (not `componentId`); omit to let AI decide   |
+| `target.screenId`        | No       | Edit a specific screen using a non-null `screenId` from run operations or the components list, not `componentId`; omit to let AI decide |
 | `referenceId`            | No       | Seed the design style from a reference (see [References](#references)); invalid id → `400` |
 | `?wait=true/false`       | No       | Sync wait mode (default: false)                                                          |
 | `idempotency-key` header | No       | Replay-safe re-sends                                                                     |
